@@ -1,0 +1,1 @@
+# turistic_platform
