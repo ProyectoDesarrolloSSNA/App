@@ -1,1 +1,1 @@
-# turistic_platform
+# App
