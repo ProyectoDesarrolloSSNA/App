@@ -1,0 +1,101 @@
+{
+  "template": "app",
+  "imports": {
+    "Volo.Abp.LeptonXLiteTheme": {
+      "version": "4.3.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.Account": {
+      "version": "9.3.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.OpenIddict": {
+      "version": "9.3.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.Identity": {
+      "version": "9.3.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.TenantManagement": {
+      "version": "9.3.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.SettingManagement": {
+      "version": "9.3.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.PermissionManagement": {
+      "version": "9.3.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.FeatureManagement": {
+      "version": "9.3.2",
+      "isInstalled": true
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "TravelBuddy.Application": {
+      "path": "src/TravelBuddy.Application/TravelBuddy.Application.abppkg",
+      "folder": "src"
+    },
+    "TravelBuddy.Application.Tests": {
+      "path": "test/TravelBuddy.Application.Tests/TravelBuddy.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "TravelBuddy.Domain.Shared": {
+      "path": "src/TravelBuddy.Domain.Shared/TravelBuddy.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "TravelBuddy.Application.Contracts": {
+      "path": "src/TravelBuddy.Application.Contracts/TravelBuddy.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "TravelBuddy.HttpApi": {
+      "path": "src/TravelBuddy.HttpApi/TravelBuddy.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "TravelBuddy.HttpApi.Client": {
+      "path": "src/TravelBuddy.HttpApi.Client/TravelBuddy.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "TravelBuddy.EntityFrameworkCore.Tests": {
+      "path": "test/TravelBuddy.EntityFrameworkCore.Tests/TravelBuddy.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "TravelBuddy.EntityFrameworkCore": {
+      "path": "src/TravelBuddy.EntityFrameworkCore/TravelBuddy.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "TravelBuddy.TestBase": {
+      "path": "test/TravelBuddy.TestBase/TravelBuddy.TestBase.abppkg",
+      "folder": "test"
+    },
+    "TravelBuddy.Domain.Tests": {
+      "path": "test/TravelBuddy.Domain.Tests/TravelBuddy.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "TravelBuddy.HttpApi.Client.ConsoleTestApp": {
+      "path": "test/TravelBuddy.HttpApi.Client.ConsoleTestApp/TravelBuddy.HttpApi.Client.ConsoleTestApp.abppkg",
+      "folder": "test"
+    },
+    "TravelBuddy.DbMigrator": {
+      "path": "src/TravelBuddy.DbMigrator/TravelBuddy.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "TravelBuddy.HttpApi.Host": {
+      "path": "src/TravelBuddy.HttpApi.Host/TravelBuddy.HttpApi.Host.abppkg",
+      "folder": "src"
+    },
+    "TravelBuddy.Domain": {
+      "path": "src/TravelBuddy.Domain/TravelBuddy.Domain.abppkg",
+      "folder": "src"
+    }
+  }
+}
