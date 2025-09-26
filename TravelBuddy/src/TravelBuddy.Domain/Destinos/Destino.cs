@@ -7,11 +7,11 @@ using Volo.Abp.Domain.Entities;
 
 namespace TravelBuddy.Destinos
 {
-    public class Destino : Entity<Guid>
+    public class Destino : AggregateRoot<Guid>
     {
-        public string Nombre { get; private set; }
-        public string Pais { get; private set; }
-        public string Descripcion { get; private set; }
+        public string Nombre { get; private set; } = default!;
+        public string Pais { get; private set; } = default!;
+        public string Descripcion { get; private set; } = default!;
 
         // Constructor vacío requerido por EF Core  
         protected Destino() { }

@@ -1,17 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TravelBuddy.Destinos
 {
-    public class DestinoDto
+    public class CreateUpdateDestinoDto
     {
-        public Guid Id { get; set; }
+        [Required]
+        [StringLength(200)]
         public string Nombre { get; set; } = default!;
+
+        [Required]
+        [StringLength(100)]
         public string Pais { get; set; } = default!;
+
+        [StringLength(500)]
         public string Descripcion { get; set; } = default!;
     }
 }
