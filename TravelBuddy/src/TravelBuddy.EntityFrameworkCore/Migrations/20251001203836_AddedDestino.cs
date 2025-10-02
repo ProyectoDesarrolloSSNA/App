@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TravelBuddy.Migrations
 {
     /// <inheritdoc />
-    public partial class addedDestino : Migration
+    public partial class AddedDestino : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

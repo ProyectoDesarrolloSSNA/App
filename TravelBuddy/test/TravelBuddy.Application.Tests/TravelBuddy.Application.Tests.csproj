@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\TravelBuddy.Application\TravelBuddy.Application.csproj" />
+    <ProjectReference Include="..\..\src\TravelBuddy.EntityFrameworkCore\TravelBuddy.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\TravelBuddy.Domain.Tests\TravelBuddy.Domain.Tests.csproj" />
   </ItemGroup>
 
