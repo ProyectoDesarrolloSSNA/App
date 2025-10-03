@@ -27,20 +27,9 @@ public class TravelBuddyDbContext :
     IIdentityDbContext
 {
     /* Add DbSet properties for your Aggregate Roots / Entities here. */
-
+    public DbSet<Destino> Destinos { get; set; }
 
     #region Entities from the modules
-
-    /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
-     * and replaced them for this DbContext. This allows you to perform JOIN
-     * queries for the entities of these modules over the repositories easily. You
-     * typically don't need that for other modules. But, if you need, you can
-     * implement the DbContext interface of the needed module and use ReplaceDbContext
-     * attribute just like IIdentityProDbContext and ISaasDbContext.
-     *
-     * More info: Replacing a DbContext of a module ensures that the related module
-     * uses this DbContext on runtime. Otherwise, it will use its own DbContext class.
-     */
 
     // Identity
     public DbSet<IdentityUser> Users { get; set; }
@@ -81,13 +70,14 @@ public class TravelBuddyDbContext :
         builder.ConfigureBlobStoring();
 
         /* Configure your own tables/entities inside here */
-
-        //builder.Entity<YourEntity>(b =>
-        //{
-        //    b.ToTable(TravelBuddyConsts.DbTablePrefix + "YourEntities", TravelBuddyConsts.DbSchema);
-        //    b.ConfigureByConvention(); //auto configure for the base class props
-        //    //...
-        //});
+        builder.Entity<Destino>(b =>
+        {
+            b.ToTable("Destinos"); // nombre de tabla
+            b.HasKey(d => d.Id);
+            b.Property(d => d.Nombre).IsRequired().HasMaxLength(200);
+            b.Property(d => d.Pais).IsRequired().HasMaxLength(100);
+            b.Property(d => d.Descripcion).HasMaxLength(500);
+        });
     }
 }
 

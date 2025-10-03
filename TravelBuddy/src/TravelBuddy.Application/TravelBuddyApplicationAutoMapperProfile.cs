@@ -1,13 +1,14 @@
 using AutoMapper;
+using TravelBuddy.Destinos;
 
-namespace TravelBuddy;
-
-public class TravelBuddyApplicationAutoMapperProfile : Profile
+namespace TravelBuddy
 {
-    public TravelBuddyApplicationAutoMapperProfile()
+    public class TravelBuddyApplicationAutoMapperProfile : Profile
     {
-        /* You can configure your AutoMapper mapping configuration here.
-         * Alternatively, you can split your mapping configurations
-         * into multiple profile classes for a better organization. */
+        public TravelBuddyApplicationAutoMapperProfile()
+        {
+            CreateMap<Destino, DestinoDto>();
+            CreateMap<CreateUpdateDestinoDto, Destino>();
+        }
     }
 }
