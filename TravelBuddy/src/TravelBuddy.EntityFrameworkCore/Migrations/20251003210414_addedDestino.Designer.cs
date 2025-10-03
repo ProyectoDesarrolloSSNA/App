@@ -13,8 +13,8 @@ using Volo.Abp.EntityFrameworkCore;
 namespace TravelBuddy.Migrations
 {
     [DbContext(typeof(TravelBuddyDbContext))]
-    [Migration("20251001203836_AddedDestino")]
-    partial class AddedDestino
+    [Migration("20251003210414_addedDestino")]
+    partial class addedDestino
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
