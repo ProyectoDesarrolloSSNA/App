@@ -13,13 +13,14 @@ public class TravelBuddyDbContextFactory : IDesignTimeDbContextFactory<TravelBud
     public TravelBuddyDbContext CreateDbContext(string[] args)
     {
         var configuration = BuildConfiguration();
-        
+
         TravelBuddyEfCoreEntityExtensionMappings.Configure();
 
-        var builder = new DbContextOptionsBuilder<TravelBuddyDbContext>()
+        var optionsBuilder = new DbContextOptionsBuilder<TravelBuddyDbContext>()
             .UseSqlServer(configuration.GetConnectionString("Default"));
-        
-        return new TravelBuddyDbContext(builder.Options);
+
+        // currentUser se omite: el ctor del DbContext lo acepta como null
+        return new TravelBuddyDbContext(optionsBuilder.Options);
     }
 
     private static IConfigurationRoot BuildConfiguration()
