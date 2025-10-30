@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -199,15 +199,17 @@ public class TravelBuddyHttpApiHostModule : AbpModule
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "TravelBuddy API", Version = "v1" });
                 options.DocInclusionPredicate((docName, description) => true);
                 options.CustomSchemaIds(type => type.FullName);
-                // :lock: Agrego definici�n manual de esquema Bearer
+
+                // ✨ AGREGAR ESTO:
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Description = "Ingrese el token JWT como: Bearer {token}",
+                    Description = "Ingrese el token JWT en el formato: Bearer {token}",
                     Name = "Authorization",
                     In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer"
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
                 });
+
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                 {
