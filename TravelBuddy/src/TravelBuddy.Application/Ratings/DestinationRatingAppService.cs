@@ -12,7 +12,7 @@ using Volo.Abp.Users;
 
 namespace TravelBuddy.Application.Ratings
 {
-    [Authorize]
+[Authorize]
     public class DestinationRatingAppService : ApplicationService
     {
         private readonly IRepository<DestinationRating, Guid> _repo;

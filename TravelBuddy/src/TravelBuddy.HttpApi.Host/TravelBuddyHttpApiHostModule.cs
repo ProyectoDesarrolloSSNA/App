@@ -189,25 +189,22 @@ public class TravelBuddyHttpApiHostModule : AbpModule
 
     private static void ConfigureSwagger(ServiceConfigurationContext context, IConfiguration configuration)
     {
-        context.Services.AddAbpSwaggerGenWithOidc(
-            configuration["AuthServer:Authority"]!,
-            ["TravelBuddy"],
-            [AbpSwaggerOidcFlows.AuthorizationCode],
-            null,
+        context.Services.AddAbpSwaggerGen(
             options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "TravelBuddy API", Version = "v1" });
                 options.DocInclusionPredicate((docName, description) => true);
                 options.CustomSchemaIds(type => type.FullName);
 
-                // ✨ AGREGAR ESTO:
+                // 🔒 Definición de seguridad Bearer
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = "Ingrese el token JWT en el formato: Bearer {token}",
                     Name = "Authorization",
                     In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer"
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT"
                 });
 
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -226,7 +223,6 @@ public class TravelBuddyHttpApiHostModule : AbpModule
                 });
             });
     }
-
     private void ConfigureCors(ServiceConfigurationContext context, IConfiguration configuration)
     {
         context.Services.AddCors(options =>
@@ -244,11 +240,12 @@ public class TravelBuddyHttpApiHostModule : AbpModule
                     .SetIsOriginAllowedToAllowWildcardSubdomains()
                     .AllowAnyHeader()
                     .AllowAnyMethod()
-                    .AllowCredentials();
+                    .AllowCredentials()
+                    // 🔥 AGREGAR ESTO para permitir el header Authorization explícitamente
+                    .WithHeaders("Authorization", "Content-Type", "Accept");
             });
         });
     }
-
     private void ConfigureHealthChecks(ServiceConfigurationContext context)
     {
         context.Services.AddTravelBuddyHealthChecks();
