@@ -21,16 +21,10 @@ public class TravelBuddyDbContextFactory : IDesignTimeDbContextFactory<TravelBud
         var optionsBuilder = new DbContextOptionsBuilder<TravelBuddyDbContext>()
             .UseSqlServer(configuration.GetConnectionString("Default"));
 
-<<<<<<< Updated upstream
+
         // currentUser se omite: el ctor del DbContext lo acepta como null
         return new TravelBuddyDbContext(optionsBuilder.Options);
-=======
-        // NSubstitute para ICurrentUser para migraciones y tooling
-        var currentUserSub = Substitute.For<ICurrentUser>();
-        currentUserSub.Id.Returns((Guid?)null);
 
-        return new TravelBuddyDbContext(builder.Options, currentUserSub);
->>>>>>> Stashed changes
     }
 
     private static IConfigurationRoot BuildConfiguration()

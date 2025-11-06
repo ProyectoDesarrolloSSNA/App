@@ -3,12 +3,9 @@ using System;
 using System.Linq.Expressions;
 using TravelBuddy; // Para IUserOwned
 using TravelBuddy.Destinos;
-<<<<<<< Updated upstream
 using TravelBuddy.Ratings;        // <-- NUEVO
 using TravelBuddy.Users;          // <-- NUEVO
-=======
-using TravelBuddy.Ratings;
->>>>>>> Stashed changes
+
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
@@ -22,14 +19,11 @@ using Volo.Abp.Identity.EntityFrameworkCore;
 using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
-<<<<<<< Updated upstream
+
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Volo.Abp.Users;             // <-- NUEVO
-=======
-using Volo.Abp.Users;
-using static OpenIddict.Abstractions.OpenIddictConstants;
->>>>>>> Stashed changes
+
 
 namespace TravelBuddy.EntityFrameworkCore;
 
@@ -61,7 +55,7 @@ public class TravelBuddyDbContext :
 
     #endregion
 
-<<<<<<< Updated upstream
+
     // NUEVO: inyección de ICurrentUser (null en design-time)
     private readonly ICurrentUser? _currentUser;
 
@@ -69,12 +63,7 @@ public class TravelBuddyDbContext :
         DbContextOptions<TravelBuddyDbContext> options,
         ICurrentUser? currentUser = null // permite migraciones sin usuario
     ) : base(options)
-=======
-    private readonly ICurrentUser _currentUser;
 
-    public TravelBuddyDbContext(DbContextOptions<TravelBuddyDbContext> options, ICurrentUser currentUser)
-        : base(options)
->>>>>>> Stashed changes
     {
         _currentUser = currentUser;
     }
@@ -83,10 +72,9 @@ public class TravelBuddyDbContext :
     {
         base.OnModelCreating(builder);
 
-<<<<<<< Updated upstream
+
         /* Include modules to your migration db context */
-=======
->>>>>>> Stashed changes
+
         builder.ConfigurePermissionManagement();
         builder.ConfigureSettingManagement();
         builder.ConfigureBackgroundJobs();
@@ -102,7 +90,7 @@ public class TravelBuddyDbContext :
             b.ConfigureByConvention();
         });
 
-<<<<<<< Updated upstream
+
         // NUEVO: mapeo DestinationRating
         builder.Entity<DestinationRating>(b =>
         {
@@ -114,14 +102,12 @@ public class TravelBuddyDbContext :
         });
 
         // NUEVO: aplica filtro global a todas las entidades IUserOwned
-=======
-        // Filtro global para todas las entidades que implementen IUserOwned
->>>>>>> Stashed changes
+
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
             if (typeof(IUserOwned).IsAssignableFrom(entityType.ClrType))
             {
-<<<<<<< Updated upstream
+
                 var method = typeof(TravelBuddyDbContext)
                     .GetMethod(nameof(ApplyUserOwnedFilter),
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
@@ -140,15 +126,6 @@ public class TravelBuddyDbContext :
                 ? e.UserId == _currentUser.GetId()
                 : false
         );
-=======
-                var parameter = Expression.Parameter(entityType.ClrType, "e");
-                var userIdProperty = Expression.Property(parameter, nameof(IUserOwned.UserId));
-                var currentUserId = Expression.Constant(_currentUser.Id ?? Guid.Empty);
-                var body = Expression.Equal(userIdProperty, currentUserId);
-                var lambda = Expression.Lambda(body, parameter);
-                entityType.SetQueryFilter(lambda);
-            }
-        }
->>>>>>> Stashed changes
+
     }
 }
