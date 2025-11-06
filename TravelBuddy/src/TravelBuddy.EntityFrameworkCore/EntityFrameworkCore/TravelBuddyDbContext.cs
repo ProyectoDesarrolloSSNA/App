@@ -1,7 +1,14 @@
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq.Expressions;
+using TravelBuddy; // Para IUserOwned
 using TravelBuddy.Destinos;
+<<<<<<< Updated upstream
 using TravelBuddy.Ratings;        // <-- NUEVO
 using TravelBuddy.Users;          // <-- NUEVO
+=======
+using TravelBuddy.Ratings;
+>>>>>>> Stashed changes
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
@@ -15,18 +22,21 @@ using Volo.Abp.Identity.EntityFrameworkCore;
 using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
+<<<<<<< Updated upstream
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Volo.Abp.Users;             // <-- NUEVO
+=======
+using Volo.Abp.Users;
+using static OpenIddict.Abstractions.OpenIddictConstants;
+>>>>>>> Stashed changes
 
 namespace TravelBuddy.EntityFrameworkCore;
 
 [ReplaceDbContext(typeof(IIdentityDbContext))]
-[ReplaceDbContext(typeof(ITenantManagementDbContext))]
 [ConnectionStringName("Default")]
 public class TravelBuddyDbContext :
     AbpDbContext<TravelBuddyDbContext>,
-    ITenantManagementDbContext,
     IIdentityDbContext
 {
     /* Add DbSet properties for your Aggregate Roots / Entities here. */
@@ -47,12 +57,11 @@ public class TravelBuddyDbContext :
     public DbSet<IdentityUserDelegation> UserDelegations { get; set; }
     public DbSet<IdentitySession> Sessions { get; set; }
 
-    // Tenant Management
-    public DbSet<Tenant> Tenants { get; set; }
-    public DbSet<TenantConnectionString> TenantConnectionStrings { get; set; }
+    public DbSet<Rating> Ratings { get; set; }
 
     #endregion
 
+<<<<<<< Updated upstream
     // NUEVO: inyección de ICurrentUser (null en design-time)
     private readonly ICurrentUser? _currentUser;
 
@@ -60,6 +69,12 @@ public class TravelBuddyDbContext :
         DbContextOptions<TravelBuddyDbContext> options,
         ICurrentUser? currentUser = null // permite migraciones sin usuario
     ) : base(options)
+=======
+    private readonly ICurrentUser _currentUser;
+
+    public TravelBuddyDbContext(DbContextOptions<TravelBuddyDbContext> options, ICurrentUser currentUser)
+        : base(options)
+>>>>>>> Stashed changes
     {
         _currentUser = currentUser;
     }
@@ -68,7 +83,10 @@ public class TravelBuddyDbContext :
     {
         base.OnModelCreating(builder);
 
+<<<<<<< Updated upstream
         /* Include modules to your migration db context */
+=======
+>>>>>>> Stashed changes
         builder.ConfigurePermissionManagement();
         builder.ConfigureSettingManagement();
         builder.ConfigureBackgroundJobs();
@@ -76,19 +94,15 @@ public class TravelBuddyDbContext :
         builder.ConfigureFeatureManagement();
         builder.ConfigureIdentity();
         builder.ConfigureOpenIddict();
-        builder.ConfigureTenantManagement();
         builder.ConfigureBlobStoring();
 
-        /* Configure your own tables/entities inside here */
         builder.Entity<Destino>(b =>
         {
-            b.ToTable("Destinos"); // nombre de tabla
-            b.HasKey(d => d.Id);
-            b.Property(d => d.Nombre).IsRequired().HasMaxLength(200);
-            b.Property(d => d.Pais).IsRequired().HasMaxLength(100);
-            b.Property(d => d.Descripcion).HasMaxLength(500);
+            b.ToTable(TravelBuddyConsts.DbTablePrefix + "Destinations", TravelBuddyConsts.DbSchema);
+            b.ConfigureByConvention();
         });
 
+<<<<<<< Updated upstream
         // NUEVO: mapeo DestinationRating
         builder.Entity<DestinationRating>(b =>
         {
@@ -100,10 +114,14 @@ public class TravelBuddyDbContext :
         });
 
         // NUEVO: aplica filtro global a todas las entidades IUserOwned
+=======
+        // Filtro global para todas las entidades que implementen IUserOwned
+>>>>>>> Stashed changes
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
             if (typeof(IUserOwned).IsAssignableFrom(entityType.ClrType))
             {
+<<<<<<< Updated upstream
                 var method = typeof(TravelBuddyDbContext)
                     .GetMethod(nameof(ApplyUserOwnedFilter),
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
@@ -122,5 +140,15 @@ public class TravelBuddyDbContext :
                 ? e.UserId == _currentUser.GetId()
                 : false
         );
+=======
+                var parameter = Expression.Parameter(entityType.ClrType, "e");
+                var userIdProperty = Expression.Property(parameter, nameof(IUserOwned.UserId));
+                var currentUserId = Expression.Constant(_currentUser.Id ?? Guid.Empty);
+                var body = Expression.Equal(userIdProperty, currentUserId);
+                var lambda = Expression.Lambda(body, parameter);
+                entityType.SetQueryFilter(lambda);
+            }
+        }
+>>>>>>> Stashed changes
     }
 }
