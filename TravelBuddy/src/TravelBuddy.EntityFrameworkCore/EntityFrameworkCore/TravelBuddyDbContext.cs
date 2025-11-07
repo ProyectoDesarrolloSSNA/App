@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+ï»¿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq.Expressions;
 using TravelBuddy; // Para IUserOwned
@@ -56,7 +56,7 @@ public class TravelBuddyDbContext :
     #endregion
 
 
-    // NUEVO: inyección de ICurrentUser (null en design-time)
+    // NUEVO: inyecciÃ³n de ICurrentUser (null en design-time)
     private readonly ICurrentUser? _currentUser;
 
     public TravelBuddyDbContext(
@@ -86,7 +86,7 @@ public class TravelBuddyDbContext :
 
         builder.Entity<Destino>(b =>
         {
-            b.ToTable(TravelBuddyConsts.DbTablePrefix + "Destinations", TravelBuddyConsts.DbSchema);
+            b.ToTable("Destinos");  // âœ… Nombre directo sin prefijo
             b.ConfigureByConvention();
         });
 
@@ -97,7 +97,7 @@ public class TravelBuddyDbContext :
             b.ToTable("DestinationRatings");
             b.HasKey(x => x.Id);
             b.Property(x => x.Score).IsRequired();
-            // Si querés 1 sola calificación por (Destino, Usuario), cambiá a .IsUnique(true)
+            // Si querÃ©s 1 sola calificaciÃ³n por (Destino, Usuario), cambiÃ¡ a .IsUnique(true)
             b.HasIndex(x => new { x.DestinationId, x.UserId }).IsUnique(false);
         });
 
