@@ -58,10 +58,14 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
 
     private async Task CreateScopesAsync()
     {
+        // Crea el scope de tu API (TravelBuddy)
         if (await _openIddictScopeRepository.FindByNameAsync("TravelBuddy") == null)
         {
-            await _scopeManager.CreateAsync(new OpenIddictScopeDescriptor {
-                Name = "TravelBuddy", DisplayName = "TravelBuddy API", Resources = { "TravelBuddy" }
+            await _scopeManager.CreateAsync(new OpenIddictScopeDescriptor
+            {
+                Name = "TravelBuddy",
+                DisplayName = "TravelBuddy API",
+                Resources = { "TravelBuddy" }
             });
         }
     }

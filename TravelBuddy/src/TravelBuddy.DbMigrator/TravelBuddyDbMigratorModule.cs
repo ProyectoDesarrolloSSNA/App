@@ -7,7 +7,8 @@ namespace TravelBuddy.DbMigrator;
 [DependsOn(
     typeof(AbpAutofacModule),
     typeof(TravelBuddyEntityFrameworkCoreModule),
-    typeof(TravelBuddyApplicationContractsModule)
+    typeof(TravelBuddyApplicationContractsModule),
+    typeof(TravelBuddyDomainModule)
 )]
 public class TravelBuddyDbMigratorModule : AbpModule
 {

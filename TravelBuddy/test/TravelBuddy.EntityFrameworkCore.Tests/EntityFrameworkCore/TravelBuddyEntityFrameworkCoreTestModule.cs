@@ -10,6 +10,8 @@ using Volo.Abp.FeatureManagement;
 using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.Uow;
+using NSubstitute;
+using Volo.Abp.Users;
 
 namespace TravelBuddy.EntityFrameworkCore;
 
@@ -67,7 +69,11 @@ public class TravelBuddyEntityFrameworkCoreTestModule : AbpModule
             .UseSqlite(connection)
             .Options;
 
-        using (var context = new TravelBuddyDbContext(options))
+        // NSubstitute para ICurrentUser
+        var currentUserSub = Substitute.For<ICurrentUser>();
+        currentUserSub.Id.Returns((System.Guid?)null);
+
+        using (var context = new TravelBuddyDbContext(options, currentUserSub))
         {
             context.GetService<IRelationalDatabaseCreator>().CreateTables();
         }

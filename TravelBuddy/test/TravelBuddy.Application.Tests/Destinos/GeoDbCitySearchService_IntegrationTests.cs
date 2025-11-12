@@ -29,6 +29,7 @@ namespace TravelBuddy.Application.Tests.External
         [Trait("Category", "IntegrationTest")]
         public async Task BuscarCiudadesPorNombreAsync_RetornaResultados_ParaNombreValido()
         {
+            await Task.Delay(2000);
             // Arrange
             var service = CreateService();
 
@@ -59,6 +60,7 @@ namespace TravelBuddy.Application.Tests.External
         [Trait("Category", "IntegrationTest")]
         public async Task BuscarCiudadesPorNombreAsync_Vacio_ParaInputInvalido()
         {
+            await Task.Delay(2000);
             // Arrange
             var service = CreateService();
 
