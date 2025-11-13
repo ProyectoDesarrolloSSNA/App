@@ -1,0 +1,31 @@
+<h1>Buscar ciudades</h1>
+
+<div class="form-group">
+  <input
+    class="form-control"
+    type="text"
+    placeholder="Escribí para buscar ciudades..."
+    (input)="onInput($event.target.value)"
+  />
+</div>
+
+<div *ngIf="loading" class="mt-3">
+  Cargando...
+</div>
+
+<div *ngIf="errorMsg && !loading" class="mt-3 text-danger">
+  {{ errorMsg }}
+</div>
+
+<ul *ngIf="!loading && !errorMsg && cities.length" class="mt-3">
+  <li *ngFor="let c of cities">
+    {{ c.name }} – {{ c.country }}
+    <small *ngIf="c.latitude !== undefined && c.longitude !== undefined">
+      ({{ c.latitude }}, {{ c.longitude }})
+    </small>
+  </li>
+</ul>
+
+<p *ngIf="!loading && !errorMsg && !cities.length" class="mt-3 text-muted">
+  No se encontraron ciudades.
+</p>
