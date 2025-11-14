@@ -52,7 +52,7 @@ export class SearchCityComponent implements OnInit {
         error: _ =>
           (this.errorMsg =
             'No se pudo buscar. ¿Backend levantado y proxy correcto?'),
-      }); 
+      });
   }
 
   onInput(value: string) {
