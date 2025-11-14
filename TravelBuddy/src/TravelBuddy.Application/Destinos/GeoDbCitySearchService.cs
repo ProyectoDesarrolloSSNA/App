@@ -28,6 +28,10 @@ namespace TravelBuddy.Destinos
 
         public async Task<List<CityDto>> BuscarCiudadesPorNombreAsync(string nombre)
         {
+            if (string.IsNullOrWhiteSpace(nombre))
+            {
+                return new List<CityDto>();
+            }
             // Endpoint recomendado
             var url = $"https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix={Uri.EscapeDataString(nombre)}&limit=5";
 

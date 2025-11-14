@@ -25,24 +25,29 @@ public class DbMigratorHostedService : IHostedService
     {
         using (var application = await AbpApplicationFactory.CreateAsync<TravelBuddyDbMigratorModule>(options =>
         {
-           options.Services.ReplaceConfiguration(_configuration);
-           options.UseAutofac();
-           options.Services.AddLogging(c => c.AddSerilog());
-           options.AddDataMigrationEnvironment();
+            options.Services.ReplaceConfiguration(_configuration);
+            options.UseAutofac();
+            options.Services.AddLogging(c => c.AddSerilog());
+            options.AddDataMigrationEnvironment();
         }))
         {
             await application.InitializeAsync();
 
+            // 1) Migraciones
             await application
                 .ServiceProvider
                 .GetRequiredService<TravelBuddyDbMigrationService>()
                 .MigrateAsync();
 
-            await application.ShutdownAsync();
+            // 2) 🔴 SEEDERS (esto ejecuta tu OpenIddictDataSeedContributor)
+            var dataSeeder = application.ServiceProvider.GetRequiredService<IDataSeeder>();
+            await dataSeeder.SeedAsync();
 
+            await application.ShutdownAsync();
             _hostApplicationLifetime.StopApplication();
         }
     }
+
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
