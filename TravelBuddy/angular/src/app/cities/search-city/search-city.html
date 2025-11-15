@@ -1,31 +1,170 @@
-<h1>Buscar ciudades</h1>
+<div class="destinos-container">
+  <div class="header">
+    <h1>
+      <i class="bi bi-map"></i>
+      Destinos
+    </h1>
+  </div>
 
-<div class="form-group">
-  <input
-    class="form-control"
-    type="text"
-    placeholder="Escribí para buscar ciudades..."
-    (input)="onInput($event.target.value)"
-  />
+  <div class="search-section">
+    <div class="search-row">
+      <div class="search-field">
+        <label for="searchText">Búsqueda</label>
+        <input 
+          type="text" 
+          id="searchText"
+          [(ngModel)]="searchText" 
+          placeholder="Destino"
+          class="form-control"
+          (keyup.enter)="buscar()"
+        />
+      </div>
+      
+      <div class="search-field">
+        <label for="searchCountry">País</label>
+        <input 
+          type="text" 
+          id="searchCountry"
+          [(ngModel)]="searchCountry" 
+          placeholder="Ar"
+          class="form-control"
+          (keyup.enter)="buscar()"
+          (input)="applyFiltersAndPagination()"
+        />
+      </div>
+      
+      <div class="search-actions">
+        <button 
+          class="btn btn-primary" 
+          (click)="buscar()"
+        >
+          <i class="bi bi-search"></i>
+          Buscar
+        </button>
+        <button 
+          class="btn btn-secondary" 
+          (click)="limpiar()"
+        >
+          <i class="bi bi-x-lg"></i>
+          Limpiar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMsg" class="alert alert-danger">
+    {{ errorMsg }}
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-spinner" *ngIf="loading">
+    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+    Cargando...
+  </div>
+
+  <!-- Grid de ciudades -->
+  <div class="destinos-grid" *ngIf="!loading && !errorMsg">
+    <div class="destino-card" *ngFor="let city of cities">
+      <div class="card-image">
+        <img [src]="getCityImage(city)" [alt]="city.name">
+        <div class="country-badge">
+          <i class="bi bi-geo-alt-fill"></i>
+          {{ city.country }}
+        </div>
+      </div>
+      
+      <div class="card-content">
+        <h3 class="destino-nombre">{{ city.name }}</h3>
+        
+        <div class="destino-details">
+          <div class="detail-item">
+            <i class="bi bi-globe"></i>
+            <span class="label">País:</span>
+            <span class="value">{{ city.country }}</span>
+          </div>
+          
+          <div class="detail-item">
+            <i class="bi bi-people-fill"></i>
+            <span class="label">Población:</span>
+            <span class="value">N/A</span>
+          </div>
+          
+          <div class="detail-item" *ngIf="city.latitude != null && city.longitude != null">
+            <i class="bi bi-pin-map-fill"></i>
+            <span class="label">Coordenadas:</span>
+            <span class="value">{{ city.latitude | number:'1.4-4' }}, {{ city.longitude | number:'1.4-4' }}</span>
+          </div>
+        </div>
+        
+        <button 
+          class="btn-map" 
+          (click)="verEnMapa(city)"
+          [disabled]="city.latitude == null || city.longitude == null"
+        >
+          <i class="bi bi-map"></i>
+          Ver en mapa
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sin resultados -->
+  <div class="no-results" *ngIf="!loading && !errorMsg && cities.length === 0 && allCities.length === 0">
+    <i class="bi bi-search"></i>
+    <p>Escribe el nombre de una ciudad para comenzar la búsqueda</p>
+  </div>
+
+  <div class="no-results" *ngIf="!loading && !errorMsg && cities.length === 0 && allCities.length > 0">
+    <i class="bi bi-search"></i>
+    <p>No se encontraron destinos con esos filtros</p>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination" *ngIf="!loading && !errorMsg && totalPages > 1">
+    <button 
+      class="pagination-btn"
+      [disabled]="currentPage === 1"
+      (click)="goToFirstPage()"
+      title="Primera página"
+    >
+      «
+    </button>
+    
+    <button 
+      class="pagination-btn"
+      [disabled]="currentPage === 1"
+      (click)="goToPage(currentPage - 1)"
+      title="Página anterior"
+    >
+      ‹
+    </button>
+    
+    <button 
+      *ngFor="let page of getPaginationPages()"
+      class="pagination-btn"
+      [class.active]="page === currentPage"
+      (click)="goToPage(page)"
+    >
+      {{ page }}
+    </button>
+    
+    <button 
+      class="pagination-btn"
+      [disabled]="currentPage === totalPages"
+      (click)="goToPage(currentPage + 1)"
+      title="Página siguiente"
+    >
+      ›
+    </button>
+    
+    <button 
+      class="pagination-btn"
+      [disabled]="currentPage === totalPages"
+      (click)="goToLastPage()"
+      title="Última página"
+    >
+      »
+    </button>
+  </div>
 </div>
-
-<div *ngIf="loading" class="mt-3">
-  Cargando...
-</div>
-
-<div *ngIf="errorMsg && !loading" class="mt-3 text-danger">
-  {{ errorMsg }}
-</div>
-
-<ul *ngIf="!loading && !errorMsg && cities.length" class="mt-3">
-  <li *ngFor="let c of cities">
-    {{ c.name }} – {{ c.country }}
-    <small *ngIf="c.latitude !== undefined && c.longitude !== undefined">
-      ({{ c.latitude }}, {{ c.longitude }})
-    </small>
-  </li>
-</ul>
-
-<p *ngIf="!loading && !errorMsg && !cities.length" class="mt-3 text-muted">
-  No se encontraron ciudades.
-</p>
