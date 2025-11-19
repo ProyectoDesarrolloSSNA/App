@@ -66,33 +66,18 @@
   <!-- Grid de ciudades -->
   <div class="destinos-grid" *ngIf="!loading && !errorMsg">
     <div class="destino-card" *ngFor="let city of cities">
-      <div class="card-image">
-        <img [src]="getCityImage(city)" [alt]="city.name">
-        <div class="country-badge">
-          <i class="bi bi-geo-alt-fill"></i>
-          {{ city.country }}
-        </div>
-      </div>
-      
       <div class="card-content">
-        <h3 class="destino-nombre">{{ city.name }}</h3>
+        <div class="card-header">
+          <h3 class="destino-nombre">{{ city.name }}</h3>
+          <span class="country-badge">
+            <i class="bi bi-geo-alt-fill"></i>
+            {{ city.country }}
+          </span>
+        </div>
         
         <div class="destino-details">
-          <div class="detail-item">
-            <i class="bi bi-globe"></i>
-            <span class="label">País:</span>
-            <span class="value">{{ city.country }}</span>
-          </div>
-          
-          <div class="detail-item">
-            <i class="bi bi-people-fill"></i>
-            <span class="label">Población:</span>
-            <span class="value">N/A</span>
-          </div>
-          
           <div class="detail-item" *ngIf="city.latitude != null && city.longitude != null">
             <i class="bi bi-pin-map-fill"></i>
-            <span class="label">Coordenadas:</span>
             <span class="value">{{ city.latitude | number:'1.4-4' }}, {{ city.longitude | number:'1.4-4' }}</span>
           </div>
         </div>
