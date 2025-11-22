@@ -12,7 +12,7 @@ using TravelBuddy.ExperienciasViaje.Dtos;
 
 namespace TravelBuddy.ExperienciasViaje
 {
-    [Authorize] //Solo usuarios logueados entran
+   [Authorize] //Solo usuarios logueados entran
     public class ExperienciaViajeAppService : ApplicationService, IExperienciaViajeAppService
     {
         private readonly IRepository<ExperienciaViaje, Guid> _repositorio;
@@ -48,7 +48,7 @@ namespace TravelBuddy.ExperienciasViaje
             {
                 throw new Volo.Abp.UserFriendlyException("No tienes permiso para editar esta experiencia.");
             }
-
+      
             experiencia.SetTitulo(input.Titulo);
             experiencia.SetDescripcion(input.Descripcion);
             experiencia.SetCalificacion(input.Calificacion);
@@ -67,7 +67,7 @@ namespace TravelBuddy.ExperienciasViaje
             {
                 throw new Volo.Abp.UserFriendlyException("No tienes permiso para eliminar esta experiencia.");
             }
-
+         
             await _repositorio.DeleteAsync(experiencia);
         }
 

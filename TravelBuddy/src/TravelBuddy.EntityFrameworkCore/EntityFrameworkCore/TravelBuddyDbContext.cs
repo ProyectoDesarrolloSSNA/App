@@ -79,6 +79,7 @@ public class TravelBuddyDbContext :
         builder.ConfigureIdentity();
         builder.ConfigureOpenIddict();
         builder.ConfigureBlobStoring();
+        builder.ConfigureTenantManagement();
 
         builder.Entity<Destino>(b =>
         {
