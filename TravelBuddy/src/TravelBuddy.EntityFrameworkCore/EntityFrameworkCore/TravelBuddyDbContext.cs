@@ -5,7 +5,7 @@ using TravelBuddy; // Para IUserOwned
 using TravelBuddy.Destinos;
 using TravelBuddy.Ratings;        // <-- NUEVO
 using TravelBuddy.Users;          // <-- NUEVO
-
+using TravelBuddy.Notifications;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
@@ -54,7 +54,7 @@ public class TravelBuddyDbContext :
     public DbSet<Rating> Ratings { get; set; }
 
     #endregion
-
+    public DbSet<AppNotification> AppNotifications { get; set; }
 
     // NUEVO: inyección de ICurrentUser (null en design-time)
     private readonly ICurrentUser? _currentUser;
@@ -99,6 +99,13 @@ public class TravelBuddyDbContext :
             b.Property(x => x.Score).IsRequired();
             // Si querés 1 sola calificación por (Destino, Usuario), cambiá a .IsUnique(true)
             b.HasIndex(x => new { x.DestinationId, x.UserId }).IsUnique(false);
+        });
+
+        builder.Entity<AppNotification>(b =>
+        {
+            b.ToTable("AppNotifications");
+            b.ConfigureByConvention();
+            b.HasIndex(x => x.UserId); // Importante para filtrar por usuario
         });
 
         // NUEVO: aplica filtro global a todas las entidades IUserOwned

@@ -7,6 +7,7 @@ using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.Modularity;
 using Volo.Abp.Uow;
 using Volo.Abp.Validation;
+using Volo.Abp.EventBus.Local;
 using Xunit;
 
 // Agregados para mocks
@@ -141,7 +142,11 @@ namespace TravelBuddy.Destinos
         {
             repoMock = Substitute.For<IRepository<Destino, Guid>>();
             citySearchMock = Substitute.For<ICitySearchService>();
-            return new DestinoAppService(repoMock, citySearchMock);
+
+            // CREAMOS EL MOCK DEL EVENT BUS
+            var localEventBusMock = Substitute.For<ILocalEventBus>();
+
+            return new DestinoAppService(repoMock, citySearchMock,localEventBusMock);
         }
 
         [Fact]
