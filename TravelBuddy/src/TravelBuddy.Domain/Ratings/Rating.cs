@@ -1,6 +1,5 @@
 ﻿using System;
 using Volo.Abp.Domain.Entities.Auditing;
-using TravelBuddy; // Para IUserOwned
 
 namespace TravelBuddy.Ratings
 {

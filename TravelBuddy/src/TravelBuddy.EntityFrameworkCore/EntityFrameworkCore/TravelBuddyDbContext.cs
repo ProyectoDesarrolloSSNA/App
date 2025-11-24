@@ -1,11 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq.Expressions;
-using TravelBuddy; // Para IUserOwned
 using TravelBuddy.Destinos;
-using TravelBuddy.Ratings;        // <-- NUEVO
-using TravelBuddy.Users;          // <-- NUEVO
-
+using TravelBuddy.Ratings;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
@@ -19,11 +16,9 @@ using Volo.Abp.Identity.EntityFrameworkCore;
 using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
-
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
-using Volo.Abp.Users;             // <-- NUEVO
-
+using Volo.Abp.Users;
 
 namespace TravelBuddy.EntityFrameworkCore;
 
@@ -86,7 +81,7 @@ public class TravelBuddyDbContext :
 
         builder.Entity<Destino>(b =>
         {
-            b.ToTable("Destinos");  // ✅ Nombre directo sin prefijo
+            b.ToTable("Destinos");
             b.ConfigureByConvention();
         });
 
@@ -97,35 +92,11 @@ public class TravelBuddyDbContext :
             b.ToTable("DestinationRatings");
             b.HasKey(x => x.Id);
             b.Property(x => x.Score).IsRequired();
-            // Si querés 1 sola calificación por (Destino, Usuario), cambiá a .IsUnique(true)
             b.HasIndex(x => new { x.DestinationId, x.UserId }).IsUnique(false);
         });
 
-        // NUEVO: aplica filtro global a todas las entidades IUserOwned
-
-        foreach (var entityType in builder.Model.GetEntityTypes())
-        {
-            if (typeof(IUserOwned).IsAssignableFrom(entityType.ClrType))
-            {
-
-                var method = typeof(TravelBuddyDbContext)
-                    .GetMethod(nameof(ApplyUserOwnedFilter),
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
-                    .MakeGenericMethod(entityType.ClrType);
-
-                method.Invoke(this, new object[] { builder });
-            }
-        }
-    }
-
-    // NUEVO: HasQueryFilter(UserId == usuario actual). Si no hay usuario => 0 filas.
-    private void ApplyUserOwnedFilter<TEntity>(ModelBuilder builder) where TEntity : class, IUserOwned
-    {
-        builder.Entity<TEntity>().HasQueryFilter(e =>
-            _currentUser != null && _currentUser.IsAuthenticated
-                ? e.UserId == _currentUser.GetId()
-                : false
-        );
-
+        // NO aplicar filtro global para IUserOwned porque manejamos la seguridad a nivel de aplicación
+        // El filtro global causaba problemas en operaciones que necesitan ver todos los registros
+        // como GetAverageRatingAsync y GetAllByDestinationAsync
     }
 }
