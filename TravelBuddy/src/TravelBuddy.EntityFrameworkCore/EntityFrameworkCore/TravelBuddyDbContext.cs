@@ -3,6 +3,11 @@ using System;
 using System.Linq.Expressions;
 using TravelBuddy.Destinos;
 using TravelBuddy.Ratings;
+using TravelBuddy; 
+using TravelBuddy.Destinos;
+using TravelBuddy.Ratings;
+using TravelBuddy.Users;
+using TravelBuddy.ExperienciasViaje;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
@@ -28,12 +33,9 @@ public class TravelBuddyDbContext :
     AbpDbContext<TravelBuddyDbContext>,
     IIdentityDbContext
 {
-    /* Add DbSet properties for your Aggregate Roots / Entities here. */
-    public DbSet<Destino> Destinos { get; set; }
-
-    // NUEVO: DbSet de calificaciones
+    public DbSet<Destino> Destinos { get; set; } 
     public DbSet<DestinationRating> DestinationRatings { get; set; } = default!;
-
+    public DbSet<ExperienciaViaje> ExperienciasViaje { get; set; }
     #region Entities from the modules
 
     // Identity
@@ -76,6 +78,7 @@ public class TravelBuddyDbContext :
         builder.ConfigureIdentity();
         builder.ConfigureOpenIddict();
         builder.ConfigureBlobStoring();
+        builder.ConfigureTenantManagement();
 
         builder.Entity<Destino>(b =>
         {
@@ -83,8 +86,7 @@ public class TravelBuddyDbContext :
             b.ConfigureByConvention();
         });
 
-
-        // NUEVO: mapeo DestinationRating
+        // Mapeo DestinationRating
         builder.Entity<DestinationRating>(b =>
         {
             b.ToTable("DestinationRatings");
@@ -96,5 +98,46 @@ public class TravelBuddyDbContext :
         // NO aplicar filtro global para IUserOwned porque manejamos la seguridad a nivel de aplicación
         // El filtro global causaba problemas en operaciones que necesitan ver todos los registros
         // como GetAverageRatingAsync y GetAllByDestinationAsync
+        // Mapeo ExperienciaViaje
+        builder.Entity<ExperienciaViaje>(b =>
+        {
+            b.ToTable("ExperienciasViaje");
+            b.ConfigureByConvention();
+            b.Property(x => x.Titulo).IsRequired().HasMaxLength(128);
+            b.Property(x => x.Descripcion).HasMaxLength(2000);
+            // Relacion con Destino  
+            b.HasOne(x => x.Destino)
+             .WithMany()
+             .HasForeignKey(x => x.DestinoId)
+             .IsRequired();
+            b.HasIndex(x => x.DestinoId);
+        });
+
+        //Aplica filtro global a todas las entidades IUserOwned
+
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            if (typeof(IUserOwned).IsAssignableFrom(entityType.ClrType))
+            {
+
+                var method = typeof(TravelBuddyDbContext)
+                    .GetMethod(nameof(ApplyUserOwnedFilter),
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+                    .MakeGenericMethod(entityType.ClrType);
+
+                method.Invoke(this, new object[] { builder });
+            }
+        }
+    }
+
+    // NUEVO: HasQueryFilter(UserId == usuario actual). Si no hay usuario => 0 filas.
+    private void ApplyUserOwnedFilter<TEntity>(ModelBuilder builder) where TEntity : class, IUserOwned
+    {
+        builder.Entity<TEntity>().HasQueryFilter(e =>
+            _currentUser != null && _currentUser.IsAuthenticated
+                ? e.UserId == _currentUser.GetId()
+                : false
+        );
+
     }
 }
