@@ -57,7 +57,6 @@ public class TravelBuddyDbContext :
         DbContextOptions<TravelBuddyDbContext> options,
         ICurrentUser? currentUser = null // permite migraciones sin usuario
     ) : base(options)
-
     {
         _currentUser = currentUser;
     }
@@ -124,12 +123,20 @@ public class TravelBuddyDbContext :
             b.HasIndex(x => x.DestinoId);
         });
 
-        //Aplica filtro global a todas las entidades IUserOwned
+        //Aplica filtro global a todas las entidades IUserOwned EXCEPTO DestinationRating y DestinationFavorite
+        // Estos manejan la seguridad a nivel de aplicación
 
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
             if (typeof(IUserOwned).IsAssignableFrom(entityType.ClrType))
             {
+                // NO aplicar filtro a DestinationRating ni DestinationFavorite
+                // porque necesitan ser accesibles globalmente para promedios y listas públicas
+                if (entityType.ClrType == typeof(DestinationRating) || 
+                    entityType.ClrType == typeof(DestinationFavorite))
+                {
+                    continue;
+                }
 
                 var method = typeof(TravelBuddyDbContext)
                     .GetMethod(nameof(ApplyUserOwnedFilter),
@@ -149,6 +156,5 @@ public class TravelBuddyDbContext :
                 ? e.UserId == _currentUser.GetId()
                 : false
         );
-
     }
 }

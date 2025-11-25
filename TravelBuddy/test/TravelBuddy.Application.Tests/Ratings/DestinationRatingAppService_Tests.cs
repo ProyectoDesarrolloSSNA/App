@@ -135,9 +135,9 @@ namespace TravelBuddy.Application.Tests.Ratings
             var user1Id = Guid.Parse("2e701e62-0953-4dd3-910b-dc6cc93ccb0d");
             var user2Id = Guid.Parse("3e701e62-0953-4dd3-910b-dc6cc93ccb0d");
 
-            // Usuario 1 califica con 5
             await WithUnitOfWorkAsync(async () =>
             {
+                // Usuario 1 califica con 5
                 using (_currentPrincipalAccessor.Change(CreateTestPrincipal(user1Id)))
                 {
                     await _ratingAppService.CreateAsync(new CreateDestinationRatingDto
@@ -147,11 +147,8 @@ namespace TravelBuddy.Application.Tests.Ratings
                         Comment = "Excelente"
                     });
                 }
-            });
 
-            // Usuario 2 califica con 3
-            await WithUnitOfWorkAsync(async () =>
-            {
+                // Usuario 2 califica con 3
                 using (_currentPrincipalAccessor.Change(CreateTestPrincipal(user2Id)))
                 {
                     await _ratingAppService.CreateAsync(new CreateDestinationRatingDto
@@ -161,16 +158,17 @@ namespace TravelBuddy.Application.Tests.Ratings
                         Comment = "Regular"
                     });
                 }
-            });
 
-            // Act & Assert
-            await WithUnitOfWorkAsync(async () =>
-            {
-                var result = await _ratingAppService.GetAverageRatingAsync(destinationId);
+                // Resetear el contexto de usuario antes de obtener el promedio
+                using (_currentPrincipalAccessor.Change(null))
+                {
+                    // Act
+                    var result = await _ratingAppService.GetAverageRatingAsync(destinationId);
 
-                // Assert
-                result.AverageScore.ShouldBe(4.0);
-                result.TotalRatings.ShouldBe(2);
+                    // Assert
+                    result.AverageScore.ShouldBe(4.0);
+                    result.TotalRatings.ShouldBe(2);
+                }
             });
         }
 
