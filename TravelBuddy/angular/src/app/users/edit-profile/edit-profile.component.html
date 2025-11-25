@@ -1,0 +1,78 @@
+<div class="edit-profile-container">
+  <h1>Editar Perfil</h1>
+
+  <div *ngIf="error" class="error-message">{{ error }}</div>
+  <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+
+  <div *ngIf="!isLoading" class="form-container">
+    <form [formGroup]="editForm" (ngSubmit)="saveProfile()">
+      <div class="form-section">
+        <h2>Información Personal</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Nombre *</label>
+            <input id="name" type="text" formControlName="name" class="form-control">
+            <div *ngIf="editForm.get('name')?.errors?.['required']" class="error-text">El nombre es requerido</div>
+            <div *ngIf="editForm.get('name')?.errors?.['minlength']" class="error-text">El nombre debe tener al menos 2 caracteres</div>
+          </div>
+
+          <div class="form-group">
+            <label for="surname">Apellido *</label>
+            <input id="surname" type="text" formControlName="surname" class="form-control">
+            <div *ngIf="editForm.get('surname')?.errors?.['required']" class="error-text">El apellido es requerido</div>
+            <div *ngIf="editForm.get('surname')?.errors?.['minlength']" class="error-text">El apellido debe tener al menos 2 caracteres</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input id="email" type="email" formControlName="email" class="form-control">
+          <div *ngIf="editForm.get('email')?.errors?.['required']" class="error-text">El email es requerido</div>
+          <div *ngIf="editForm.get('email')?.errors?.['email']" class="error-text">Email inválido</div>
+        </div>
+
+        <div class="form-group">
+          <label for="phoneNumber">Teléfono</label>
+          <input id="phoneNumber" type="tel" formControlName="phoneNumber" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="bio">Biografía</label>
+          <textarea id="bio" formControlName="bio" class="form-control" rows="4" placeholder="Cuéntanos sobre ti..."></textarea>
+          <small class="char-count">{{ editForm.get('bio')?.value?.length || 0 }}/500</small>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2>Foto de Perfil</h2>
+        
+        <div class="profile-picture-section">
+          <div class="preview">
+            <img *ngIf="previewUrl" [src]="previewUrl" alt="Preview de foto de perfil" class="profile-picture-preview">
+            <div *ngIf="!previewUrl" class="profile-picture-placeholder">
+              <span>Sin foto</span>
+            </div>
+          </div>
+
+          <div class="upload-area">
+            <label for="profilePicture" class="file-label">
+              <span>Cambiar foto de perfil</span>
+              <input id="profilePicture" type="file" (change)="onFileSelected($event)" accept="image/*" class="file-input">
+            </label>
+            <small>Formatos: JPG, PNG, GIF. Tamaño máximo: 5MB</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="editForm.invalid || isSaving" class="btn btn-primary">
+          {{ isSaving ? 'Guardando...' : 'Guardar Cambios' }}
+        </button>
+        <button type="button" (click)="goBack()" class="btn btn-secondary">Cancelar</button>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">Cargando perfil...</div>
+</div>

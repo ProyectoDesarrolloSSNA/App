@@ -1,5 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService, LocalizationPipe } from '@abp/ng.core';
+import { LocalAuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -7,14 +9,23 @@ import { AuthService, LocalizationPipe } from '@abp/ng.core';
   styleUrls: ['./home.component.scss'],
   imports: [LocalizationPipe]
 })
-export class HomeComponent {
-  private authService = inject(AuthService);
+export class HomeComponent implements OnInit {
+  private abpAuthService = inject(AuthService);
+  private localAuthService = inject(LocalAuthService);
+  private router = inject(Router);
 
   get hasLoggedIn(): boolean {
-    return this.authService.isAuthenticated
+    return this.localAuthService.isAuthenticated();
+  }
+
+  ngOnInit() {
+    // Redirigir a login si no está autenticado
+    if (!this.hasLoggedIn) {
+      this.router.navigate(['/auth/login']);
+    }
   }
 
   login() {
-    this.authService.navigateToLogin();
+    this.router.navigate(['/auth/login']);
   }
 }
