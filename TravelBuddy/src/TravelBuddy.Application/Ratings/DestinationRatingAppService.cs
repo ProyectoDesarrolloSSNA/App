@@ -150,7 +150,6 @@ namespace TravelBuddy.Application.Ratings
             if (!_currentUser.IsAuthenticated)
                 throw new AbpAuthorizationException();
 
-            // Este método SÍ usa el filtro global porque queremos solo las del usuario actual
             var queryable = await _repo.GetQueryableAsync();
             var ratings = await AsyncExecuter.ToListAsync(
                 queryable.Where(x => x.DestinationId == destinationId && x.UserId == _currentUser.GetId())
@@ -164,6 +163,22 @@ namespace TravelBuddy.Application.Ratings
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Obtiene la calificación del usuario actual para un destino específico (si existe)
+        /// </summary>
+        [Authorize]
+        public async Task<DestinationRatingDto?> GetMyRatingForDestinationAsync(Guid destinationId)
+        {
+            if (!_currentUser.IsAuthenticated)
+                throw new AbpAuthorizationException();
+
+            var rating = await _repo.FirstOrDefaultAsync(x => 
+                x.DestinationId == destinationId && 
+                x.UserId == _currentUser.GetId());
+
+            return rating != null ? await MapToDto(rating) : null;
         }
 
         private async Task<DestinationRatingDto> MapToDto(DestinationRating rating)

@@ -36,5 +36,11 @@ namespace TravelBuddy.Ratings.Dtos
         /// Obtiene las calificaciones propias del usuario actual
         /// </summary>
         Task<List<DestinationRatingDto>> GetMyRatingsAsync(Guid destinationId);
+
+        /// <summary>
+        /// Obtiene la calificación del usuario actual para un destino específico (si existe)
+        /// Útil para saber si ya calificó y obtener el ID del rating para editar/eliminar
+        /// </summary>
+        Task<DestinationRatingDto?> GetMyRatingForDestinationAsync(Guid destinationId);
     }
 }

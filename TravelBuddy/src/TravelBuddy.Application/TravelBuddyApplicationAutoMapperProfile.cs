@@ -1,7 +1,5 @@
 using AutoMapper;
-using TravelBuddy.Application.Contracts.Ratings;
 using TravelBuddy.Destinos;
-using TravelBuddy.Ratings;
 using TravelBuddy.Users;
 using Volo.Abp.Identity;
 
@@ -17,8 +15,6 @@ public class TravelBuddyApplicationAutoMapperProfile : Profile
 
         CreateMap<Destino, DestinoDto>();
         CreateMap<CreateUpdateDestinoDto, Destino>();
-        CreateMap<Rating, RatingDto>();
-        CreateMap<CreateUpdateRatingDto, Rating>();
         
         // Mapeo para perfil público
         CreateMap<IdentityUser, PublicProfileDto>();
