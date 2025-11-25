@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using TravelBuddy.Destinos;
 using TravelBuddy.Ratings;
 using TravelBuddy.ExperienciasViaje;
+using TravelBuddy.Favorites;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
@@ -32,6 +33,8 @@ public class TravelBuddyDbContext :
     public DbSet<Destino> Destinos { get; set; } 
     public DbSet<DestinationRating> DestinationRatings { get; set; } = default!;
     public DbSet<ExperienciaViaje> ExperienciasViaje { get; set; }
+    public DbSet<DestinationFavorite> DestinationFavorites { get; set; } = default!;
+    
     #region Entities from the modules
 
     // Identity
@@ -89,6 +92,18 @@ public class TravelBuddyDbContext :
             b.HasKey(x => x.Id);
             b.Property(x => x.Score).IsRequired();
             b.HasIndex(x => new { x.DestinationId, x.UserId }).IsUnique(false);
+        });
+
+        // Mapeo DestinationFavorite
+        builder.Entity<DestinationFavorite>(b =>
+        {
+            b.ToTable("DestinationFavorites");
+            b.HasKey(x => x.Id);
+            b.Property(x => x.DestinationId).IsRequired();
+            b.Property(x => x.UserId).IsRequired();
+            // Índice único para evitar duplicados de favoritos por usuario y destino
+            b.HasIndex(x => new { x.UserId, x.DestinationId }).IsUnique();
+            b.HasIndex(x => x.DestinationId);
         });
 
         // NO aplicar filtro global para IUserOwned porque manejamos la seguridad a nivel de aplicación

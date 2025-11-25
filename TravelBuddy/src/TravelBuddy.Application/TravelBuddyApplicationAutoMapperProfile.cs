@@ -2,6 +2,8 @@ using AutoMapper;
 using TravelBuddy.Destinos;
 using TravelBuddy.ExperienciasViaje;
 using TravelBuddy.ExperienciasViaje.Dtos;
+using TravelBuddy.Favorites;
+using TravelBuddy.Favorites.Dtos;
 using TravelBuddy.Users;
 using Volo.Abp.Identity;
 
@@ -19,5 +21,8 @@ public class TravelBuddyApplicationAutoMapperProfile : Profile
         
         // Mapeo para perfil público
         CreateMap<IdentityUser, PublicProfileDto>();
+        
+        // Mapeo para favoritos (básico, el mapeo completo se hace en el servicio)
+        CreateMap<DestinationFavorite, DestinationFavoriteDto>();
     }
 }
