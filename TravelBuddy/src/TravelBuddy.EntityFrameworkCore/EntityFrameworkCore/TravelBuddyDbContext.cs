@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq.Expressions;
-using TravelBuddy; // Para IUserOwned
+using TravelBuddy; 
 using TravelBuddy.Destinos;
-using TravelBuddy.Ratings;        // <-- NUEVO
-using TravelBuddy.Users;          // <-- NUEVO
-
+using TravelBuddy.Ratings;
+using TravelBuddy.Users;
+using TravelBuddy.ExperienciasViaje;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
@@ -19,7 +19,6 @@ using Volo.Abp.Identity.EntityFrameworkCore;
 using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
-
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Volo.Abp.Users;             // <-- NUEVO
@@ -33,12 +32,9 @@ public class TravelBuddyDbContext :
     AbpDbContext<TravelBuddyDbContext>,
     IIdentityDbContext
 {
-    /* Add DbSet properties for your Aggregate Roots / Entities here. */
-    public DbSet<Destino> Destinos { get; set; }
-
-    // NUEVO: DbSet de calificaciones
+    public DbSet<Destino> Destinos { get; set; } 
     public DbSet<DestinationRating> DestinationRatings { get; set; } = default!;
-
+    public DbSet<ExperienciaViaje> ExperienciasViaje { get; set; }
     #region Entities from the modules
 
     // Identity
@@ -83,25 +79,39 @@ public class TravelBuddyDbContext :
         builder.ConfigureIdentity();
         builder.ConfigureOpenIddict();
         builder.ConfigureBlobStoring();
+        builder.ConfigureTenantManagement();
 
         builder.Entity<Destino>(b =>
         {
-            b.ToTable("Destinos");  // ✅ Nombre directo sin prefijo
+            b.ToTable("Destinos");
             b.ConfigureByConvention();
         });
 
-
-        // NUEVO: mapeo DestinationRating
+        // Mapeo DestinationRating
         builder.Entity<DestinationRating>(b =>
         {
             b.ToTable("DestinationRatings");
             b.HasKey(x => x.Id);
             b.Property(x => x.Score).IsRequired();
-            // Si querés 1 sola calificación por (Destino, Usuario), cambiá a .IsUnique(true)
             b.HasIndex(x => new { x.DestinationId, x.UserId }).IsUnique(false);
         });
 
-        // NUEVO: aplica filtro global a todas las entidades IUserOwned
+        // Mapeo ExperienciaViaje
+        builder.Entity<ExperienciaViaje>(b =>
+        {
+            b.ToTable("ExperienciasViaje");
+            b.ConfigureByConvention();
+            b.Property(x => x.Titulo).IsRequired().HasMaxLength(128);
+            b.Property(x => x.Descripcion).HasMaxLength(2000);
+            // Relacion con Destino  
+            b.HasOne(x => x.Destino)
+             .WithMany()
+             .HasForeignKey(x => x.DestinoId)
+             .IsRequired();
+            b.HasIndex(x => x.DestinoId);
+        });
+
+        //Aplica filtro global a todas las entidades IUserOwned
 
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
