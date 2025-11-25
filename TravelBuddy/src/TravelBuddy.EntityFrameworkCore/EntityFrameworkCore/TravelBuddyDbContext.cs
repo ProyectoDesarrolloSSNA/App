@@ -108,6 +108,7 @@ public class TravelBuddyDbContext :
         // NO aplicar filtro global para IUserOwned porque manejamos la seguridad a nivel de aplicación
         // El filtro global causaba problemas en operaciones que necesitan ver todos los registros
         // como GetAverageRatingAsync y GetAllByDestinationAsync
+        
         // Mapeo ExperienciaViaje
         builder.Entity<ExperienciaViaje>(b =>
         {
@@ -123,21 +124,14 @@ public class TravelBuddyDbContext :
             b.HasIndex(x => x.DestinoId);
         });
 
-        //Aplica filtro global a todas las entidades IUserOwned EXCEPTO DestinationRating y DestinationFavorite
-        // Estos manejan la seguridad a nivel de aplicación
-
+        // COMENTADO: No aplicamos filtro global para IUserOwned
+        // La seguridad se maneja a nivel de aplicación service
+        /*
+        //Aplica filtro global a todas las entidades IUserOwned
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
             if (typeof(IUserOwned).IsAssignableFrom(entityType.ClrType))
             {
-                // NO aplicar filtro a DestinationRating ni DestinationFavorite
-                // porque necesitan ser accesibles globalmente para promedios y listas públicas
-                if (entityType.ClrType == typeof(DestinationRating) || 
-                    entityType.ClrType == typeof(DestinationFavorite))
-                {
-                    continue;
-                }
-
                 var method = typeof(TravelBuddyDbContext)
                     .GetMethod(nameof(ApplyUserOwnedFilter),
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
@@ -146,9 +140,11 @@ public class TravelBuddyDbContext :
                 method.Invoke(this, new object[] { builder });
             }
         }
+        */
     }
 
-    // NUEVO: HasQueryFilter(UserId == usuario actual). Si no hay usuario => 0 filas.
+    // COMENTADO: Método no utilizado ya que no aplicamos filtro global
+    /*
     private void ApplyUserOwnedFilter<TEntity>(ModelBuilder builder) where TEntity : class, IUserOwned
     {
         builder.Entity<TEntity>().HasQueryFilter(e =>
@@ -157,4 +153,5 @@ public class TravelBuddyDbContext :
                 : false
         );
     }
+    */
 }

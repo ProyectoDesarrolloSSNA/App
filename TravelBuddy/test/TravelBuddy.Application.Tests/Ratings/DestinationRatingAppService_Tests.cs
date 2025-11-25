@@ -68,7 +68,7 @@ namespace TravelBuddy.Application.Tests.Ratings
             {
                 using (_currentPrincipalAccessor.Change(CreateTestPrincipal(testUserId)))
                 {
-                    // Crear calificación
+                    // Crear calificaciÃ³n
                     var createInput = new CreateDestinationRatingDto
                     {
                         DestinationId = destinationId,
@@ -107,7 +107,7 @@ namespace TravelBuddy.Application.Tests.Ratings
             {
                 using (_currentPrincipalAccessor.Change(CreateTestPrincipal(testUserId)))
                 {
-                    // Crear calificación
+                    // Crear calificaciÃ³n
                     var createInput = new CreateDestinationRatingDto
                     {
                         DestinationId = destinationId,
@@ -135,12 +135,14 @@ namespace TravelBuddy.Application.Tests.Ratings
             var user1Id = Guid.Parse("2e701e62-0953-4dd3-910b-dc6cc93ccb0d");
             var user2Id = Guid.Parse("3e701e62-0953-4dd3-910b-dc6cc93ccb0d");
 
+            // Usuario 1 califica con 5
+            DestinationRatingDto rating1 = null;
             await WithUnitOfWorkAsync(async () =>
             {
                 // Usuario 1 califica con 5
                 using (_currentPrincipalAccessor.Change(CreateTestPrincipal(user1Id)))
                 {
-                    await _ratingAppService.CreateAsync(new CreateDestinationRatingDto
+                    rating1 = await _ratingAppService.CreateAsync(new CreateDestinationRatingDto
                     {
                         DestinationId = destinationId,
                         Score = 5,
@@ -151,7 +153,7 @@ namespace TravelBuddy.Application.Tests.Ratings
                 // Usuario 2 califica con 3
                 using (_currentPrincipalAccessor.Change(CreateTestPrincipal(user2Id)))
                 {
-                    await _ratingAppService.CreateAsync(new CreateDestinationRatingDto
+                    rating2 = await _ratingAppService.CreateAsync(new CreateDestinationRatingDto
                     {
                         DestinationId = destinationId,
                         Score = 3,
