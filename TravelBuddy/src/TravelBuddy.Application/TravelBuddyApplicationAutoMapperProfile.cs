@@ -1,5 +1,4 @@
 using AutoMapper;
-using TravelBuddy.Application.Contracts.Ratings;
 using TravelBuddy.Destinos;
 using TravelBuddy.ExperienciasViaje;
 using TravelBuddy.ExperienciasViaje.Dtos;

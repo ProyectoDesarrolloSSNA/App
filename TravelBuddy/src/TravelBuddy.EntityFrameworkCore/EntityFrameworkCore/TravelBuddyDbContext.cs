@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq.Expressions;
+using TravelBuddy.Destinos;
+using TravelBuddy.Ratings;
 using TravelBuddy; 
 using TravelBuddy.Destinos;
 using TravelBuddy.Ratings;
@@ -21,8 +23,7 @@ using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
-using Volo.Abp.Users;             // <-- NUEVO
-
+using Volo.Abp.Users;
 
 namespace TravelBuddy.EntityFrameworkCore;
 
@@ -46,8 +47,6 @@ public class TravelBuddyDbContext :
     public DbSet<IdentityLinkUser> LinkUsers { get; set; }
     public DbSet<IdentityUserDelegation> UserDelegations { get; set; }
     public DbSet<IdentitySession> Sessions { get; set; }
-
-    public DbSet<Rating> Ratings { get; set; }
 
     #endregion
 
@@ -96,6 +95,9 @@ public class TravelBuddyDbContext :
             b.HasIndex(x => new { x.DestinationId, x.UserId }).IsUnique(false);
         });
 
+        // NO aplicar filtro global para IUserOwned porque manejamos la seguridad a nivel de aplicación
+        // El filtro global causaba problemas en operaciones que necesitan ver todos los registros
+        // como GetAverageRatingAsync y GetAllByDestinationAsync
         // Mapeo ExperienciaViaje
         builder.Entity<ExperienciaViaje>(b =>
         {
