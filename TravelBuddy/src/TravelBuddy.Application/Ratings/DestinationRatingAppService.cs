@@ -41,6 +41,7 @@ namespace TravelBuddy.Application.Ratings
                 throw new AbpAuthorizationException();
 
             // Verificar si el usuario ya qualificó este destino
+            // Necesitamos verificar SOLO las calificaciones del usuario actual, el filtro ya lo hace automáticamente
             var existingRating = await _repo.FirstOrDefaultAsync(x =>
                 x.DestinationId == input.DestinationId &&
                 x.UserId == _currentUser.GetId());

@@ -136,11 +136,12 @@ namespace TravelBuddy.Application.Tests.Ratings
             var user2Id = Guid.Parse("3e701e62-0953-4dd3-910b-dc6cc93ccb0d");
 
             // Usuario 1 califica con 5
+            DestinationRatingDto rating1 = null;
             await WithUnitOfWorkAsync(async () =>
             {
                 using (_currentPrincipalAccessor.Change(CreateTestPrincipal(user1Id)))
                 {
-                    await _ratingAppService.CreateAsync(new CreateDestinationRatingDto
+                    rating1 = await _ratingAppService.CreateAsync(new CreateDestinationRatingDto
                     {
                         DestinationId = destinationId,
                         Score = 5,
@@ -150,11 +151,12 @@ namespace TravelBuddy.Application.Tests.Ratings
             });
 
             // Usuario 2 califica con 3
+            DestinationRatingDto rating2 = null;
             await WithUnitOfWorkAsync(async () =>
             {
                 using (_currentPrincipalAccessor.Change(CreateTestPrincipal(user2Id)))
                 {
-                    await _ratingAppService.CreateAsync(new CreateDestinationRatingDto
+                    rating2 = await _ratingAppService.CreateAsync(new CreateDestinationRatingDto
                     {
                         DestinationId = destinationId,
                         Score = 3,
@@ -163,14 +165,15 @@ namespace TravelBuddy.Application.Tests.Ratings
                 }
             });
 
-            // Act & Assert
+            // Act & Assert - Sin contexto de usuario para ver todas las calificaciones
             await WithUnitOfWorkAsync(async () =>
             {
+                // Act
                 var result = await _ratingAppService.GetAverageRatingAsync(destinationId);
 
                 // Assert
+                result.TotalRatings.ShouldBe(2, $"Se esperaban 2 ratings pero se encontraron {result.TotalRatings}. Rating1 Score: {rating1?.Score}, Rating2 Score: {rating2?.Score}");
                 result.AverageScore.ShouldBe(4.0);
-                result.TotalRatings.ShouldBe(2);
             });
         }
 
