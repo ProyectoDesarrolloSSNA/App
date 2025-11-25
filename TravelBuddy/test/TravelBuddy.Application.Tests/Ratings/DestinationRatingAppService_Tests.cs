@@ -68,7 +68,7 @@ namespace TravelBuddy.Application.Tests.Ratings
             {
                 using (_currentPrincipalAccessor.Change(CreateTestPrincipal(testUserId)))
                 {
-                    // Crear calificación
+                    // Crear calificaciÃ³n
                     var createInput = new CreateDestinationRatingDto
                     {
                         DestinationId = destinationId,
@@ -107,7 +107,7 @@ namespace TravelBuddy.Application.Tests.Ratings
             {
                 using (_currentPrincipalAccessor.Change(CreateTestPrincipal(testUserId)))
                 {
-                    // Crear calificación
+                    // Crear calificaciÃ³n
                     var createInput = new CreateDestinationRatingDto
                     {
                         DestinationId = destinationId,
@@ -139,6 +139,7 @@ namespace TravelBuddy.Application.Tests.Ratings
             DestinationRatingDto rating1 = null;
             await WithUnitOfWorkAsync(async () =>
             {
+                // Usuario 1 califica con 5
                 using (_currentPrincipalAccessor.Change(CreateTestPrincipal(user1Id)))
                 {
                     rating1 = await _ratingAppService.CreateAsync(new CreateDestinationRatingDto
@@ -148,12 +149,8 @@ namespace TravelBuddy.Application.Tests.Ratings
                         Comment = "Excelente"
                     });
                 }
-            });
 
-            // Usuario 2 califica con 3
-            DestinationRatingDto rating2 = null;
-            await WithUnitOfWorkAsync(async () =>
-            {
+                // Usuario 2 califica con 3
                 using (_currentPrincipalAccessor.Change(CreateTestPrincipal(user2Id)))
                 {
                     rating2 = await _ratingAppService.CreateAsync(new CreateDestinationRatingDto
@@ -163,17 +160,17 @@ namespace TravelBuddy.Application.Tests.Ratings
                         Comment = "Regular"
                     });
                 }
-            });
 
-            // Act & Assert - Sin contexto de usuario para ver todas las calificaciones
-            await WithUnitOfWorkAsync(async () =>
-            {
-                // Act
-                var result = await _ratingAppService.GetAverageRatingAsync(destinationId);
+                // Resetear el contexto de usuario antes de obtener el promedio
+                using (_currentPrincipalAccessor.Change(null))
+                {
+                    // Act
+                    var result = await _ratingAppService.GetAverageRatingAsync(destinationId);
 
-                // Assert
-                result.TotalRatings.ShouldBe(2, $"Se esperaban 2 ratings pero se encontraron {result.TotalRatings}. Rating1 Score: {rating1?.Score}, Rating2 Score: {rating2?.Score}");
-                result.AverageScore.ShouldBe(4.0);
+                    // Assert
+                    result.AverageScore.ShouldBe(4.0);
+                    result.TotalRatings.ShouldBe(2);
+                }
             });
         }
 
