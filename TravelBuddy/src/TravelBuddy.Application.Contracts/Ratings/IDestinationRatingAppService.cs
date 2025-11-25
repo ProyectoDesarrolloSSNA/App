@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TravelBuddy.Ratings.Dtos;
 using Volo.Abp.Application.Services;
 
-namespace TravelBuddy.Ratings.Dtos
+namespace TravelBuddy.Ratings
 {
     public interface IDestinationRatingAppService : IApplicationService
     {

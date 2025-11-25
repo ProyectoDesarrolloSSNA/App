@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Shouldly;
 using TravelBuddy.Destinos;
+using TravelBuddy.Ratings;
 using TravelBuddy.Ratings.Dtos;
 using Volo.Abp.Authorization;
 using Volo.Abp.Identity;

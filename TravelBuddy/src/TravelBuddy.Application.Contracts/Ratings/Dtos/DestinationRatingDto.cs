@@ -11,6 +11,5 @@ namespace TravelBuddy.Ratings.Dtos
         public int Score { get; set; }
         public string? Comment { get; set; }
         public DateTime CreationTime { get; set; }
-        public Guid UserId { get; set; }
     }
 }

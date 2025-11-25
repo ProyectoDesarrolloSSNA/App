@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using NSubstitute;
 using Shouldly;
 using TravelBuddy.Application.Ratings;
-using TravelBuddy.Ratings;  // ✅ AGREGAR ESTE USING
+using TravelBuddy.Ratings;
 using TravelBuddy.Ratings.Dtos;
 using Volo.Abp;
 using Volo.Abp.Authorization;
+using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.Identity;
 using Volo.Abp.Modularity;
 using Volo.Abp.Users;
 using Xunit;
@@ -35,8 +38,10 @@ namespace TravelBuddy.Tests.Ratings
             // Arrange: Simular usuario no autenticado
             var mockCurrentUser = new FakeCurrentUser(isAuthenticated: false);
             var appServiceWithoutAuth = new DestinationRatingAppService(
-                GetRequiredService<IRepository<DestinationRating, Guid>>(), // ✅ SIN "TravelBuddy.Tests.Ratings"
-                mockCurrentUser
+                GetRequiredService<IRepository<DestinationRating, Guid>>(),
+                GetRequiredService<IIdentityUserRepository>(),
+                mockCurrentUser,
+                GetRequiredService<IDataFilter>()
             );
 
             var input = new CreateDestinationRatingDto
@@ -97,7 +102,6 @@ namespace TravelBuddy.Tests.Ratings
             public Guid? TenantId => null;
             public string[] Roles => Array.Empty<string>();
 
-            // ✅ CORRECCIÓN: Cambiar tipos de retorno de Guid a Claim
             public Claim? FindClaim(string claimType) => null;
             public Claim[] FindClaims(string claimType) => Array.Empty<Claim>();
             public Claim[] GetAllClaims() => Array.Empty<Claim>();
