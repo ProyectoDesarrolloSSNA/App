@@ -5,7 +5,7 @@ using TravelBuddy; // Para IUserOwned
 using TravelBuddy.Destinos;
 using TravelBuddy.Ratings;        // <-- NUEVO
 using TravelBuddy.Users;          // <-- NUEVO
-
+using TravelBuddy.Administration;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
@@ -39,6 +39,7 @@ public class TravelBuddyDbContext :
     // NUEVO: DbSet de calificaciones
     public DbSet<DestinationRating> DestinationRatings { get; set; } = default!;
 
+    public DbSet<ApiUsageLog> ApiUsageLogs { get; set; }
     #region Entities from the modules
 
     // Identity
@@ -99,6 +100,13 @@ public class TravelBuddyDbContext :
             b.Property(x => x.Score).IsRequired();
             // Si querés 1 sola calificación por (Destino, Usuario), cambiá a .IsUnique(true)
             b.HasIndex(x => new { x.DestinationId, x.UserId }).IsUnique(false);
+        });
+
+        builder.Entity<ApiUsageLog>(b =>
+        {
+            b.ToTable("ApiUsageLogs");
+            b.ConfigureByConvention();
+            b.HasIndex(x => x.CreationTime); // Indice para búsquedas rápidas por fecha
         });
 
         // NUEVO: aplica filtro global a todas las entidades IUserOwned

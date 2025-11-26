@@ -3,6 +3,7 @@ using TravelBuddy.Application.Contracts.Ratings;
 using TravelBuddy.Destinos;
 using TravelBuddy.Ratings;
 using static OpenIddict.Abstractions.OpenIddictConstants;
+using TravelBuddy.Administration;
 
 namespace TravelBuddy;
 
@@ -18,5 +19,6 @@ public class TravelBuddyApplicationAutoMapperProfile : Profile
         CreateMap<CreateUpdateDestinoDto, Destino>();
         CreateMap<Rating, RatingDto>();
         CreateMap<CreateUpdateRatingDto, Rating>();
+        CreateMap<ApiUsageLog, ApiUsageLogDto>();
     }
 }
