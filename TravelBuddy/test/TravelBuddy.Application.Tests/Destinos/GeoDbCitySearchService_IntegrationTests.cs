@@ -1,8 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using NSubstitute;
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using TravelBuddy.Administration;
 using TravelBuddy.Destinos;
+using Volo.Abp.Domain.Repositories;
 using Xunit;
 
 namespace TravelBuddy.Application.Tests.External
@@ -22,7 +26,11 @@ namespace TravelBuddy.Application.Tests.External
         private static GeoDbCitySearchService CreateService()
         {
             var httpClient = new HttpClient();
-            return new GeoDbCitySearchService(httpClient);
+
+            // 1. Creamos un repositorio falso que no haga nada
+            var logRepositoryMock = Substitute.For<IRepository<ApiUsageLog, Guid>>();
+
+            return new GeoDbCitySearchService(httpClient, logRepositoryMock);
         }
 
         [Fact]
@@ -78,7 +86,11 @@ namespace TravelBuddy.Application.Tests.External
         {
             // Arrange
             using var httpClient = new HttpClient(new FailingHandler());
-            var service = new GeoDbCitySearchService(httpClient);
+
+            // 3. También necesitamos el mock aquí
+            var logRepositoryMock = Substitute.For<IRepository<ApiUsageLog, Guid>>();
+
+            var service = new GeoDbCitySearchService(httpClient, logRepositoryMock);
 
             // Act
             List<CityDto> result;
