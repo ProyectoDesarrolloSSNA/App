@@ -5,9 +5,9 @@ namespace TravelBuddy.Administration
 {
     public class ApiUsageLog : CreationAuditedEntity<Guid>
     {
-        public string ServiceName { get; set; } // Ej: "GeoDB"
-        public string Endpoint { get; set; }    // Ej: "BuscarCiudades"
-        public string Parameters { get; set; }  // Ej: "nombre=Paris"
+        public string ServiceName { get; set; } = default!; // Ej: "GeoDB"
+        public string Endpoint { get; set; } = default!;    // Ej: "BuscarCiudades"
+        public string Parameters { get; set; } = default!;  // Ej: "nombre=Paris"
         public int StatusCode { get; set; }     // Ej: 200, 404, 500
         public long ExecutionDurationMs { get; set; } // Tiempo que tardó
 

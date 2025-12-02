@@ -129,7 +129,9 @@ public class TravelBuddyHttpApiHostModule : AbpModule
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)
     {
+        // ✅ SOLO Bearer Token - Sin cookies
         context.Services.ForwardIdentityAuthenticationForBearer(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+        
         context.Services.Configure<AbpClaimsPrincipalFactoryOptions>(options =>
         {
             options.IsDynamicClaimsEnabled = true;
@@ -196,15 +198,13 @@ public class TravelBuddyHttpApiHostModule : AbpModule
 
     private static void ConfigureSwagger(ServiceConfigurationContext context, IConfiguration configuration)
     {
-
         context.Services.AddAbpSwaggerGen(options =>
         {
             options.SwaggerDoc("v1", new OpenApiInfo { Title = "TravelBuddy API", Version = "v1" });
             options.DocInclusionPredicate((docName, description) => true);
             options.CustomSchemaIds(type => type.FullName);
 
-
-            // Solo Bearer, sin otros esquemas
+            // 🔒 SOLO Bearer Token - Para usar con Postman
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 Name = "Authorization",
@@ -212,23 +212,23 @@ public class TravelBuddyHttpApiHostModule : AbpModule
                 Scheme = "Bearer",
                 BearerFormat = "JWT",
                 In = ParameterLocation.Header,
-                Description = "Ingrese SOLO el token JWT (sin 'Bearer')"
+                Description = "Ingrese el token JWT obtenido desde Postman.\n\nEjemplo: Ejecute POST /connect/token con grant_type=password"
             });
 
             options.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
             {
-                new OpenApiSecurityScheme
                 {
-                    Reference = new OpenApiReference
+                    new OpenApiSecurityScheme
                     {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
-                    }
-                },
-                new string[] {}
-            }
-        });
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
         });
     }
     private void ConfigureCors(ServiceConfigurationContext context, IConfiguration configuration)
@@ -238,9 +238,17 @@ public class TravelBuddyHttpApiHostModule : AbpModule
             options.AddDefaultPolicy(builder =>
             {
                 builder
-                    .AllowAnyOrigin()
+                    .WithOrigins(
+                        configuration["App:CorsOrigins"]?
+                            .Split(",", StringSplitOptions.RemoveEmptyEntries)
+                            .Select(o => o.RemovePostFix("/"))
+                            .ToArray() ?? Array.Empty<string>()
+                    )
+                    .WithAbpExposedHeaders()
+                    .SetIsOriginAllowedToAllowWildcardSubdomains()
                     .AllowAnyHeader()
-                    .AllowAnyMethod();
+                    .AllowAnyMethod()
+                    .AllowCredentials(); // Solo si usas cookies (en tu caso, podrías quitarlo)
             });
         });
     }
@@ -289,9 +297,8 @@ public class TravelBuddyHttpApiHostModule : AbpModule
         app.UseAbpSwaggerUI(options =>
         {
             options.SwaggerEndpoint("/swagger/v1/swagger.json", "TravelBuddy API");
-
-            var configuration = context.ServiceProvider.GetRequiredService<IConfiguration>();
-            options.OAuthClientId(configuration["AuthServer:SwaggerClientId"]);
+            
+            // No configurar OAuth - usar solo Bearer token manual
         });
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();

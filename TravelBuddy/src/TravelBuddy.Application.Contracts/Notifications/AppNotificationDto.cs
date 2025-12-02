@@ -5,8 +5,8 @@ namespace TravelBuddy.Notifications
 {
     public class AppNotificationDto : EntityDto<Guid>
     {
-        public string Title { get; set; }
-        public string Message { get; set; }
+        public required string Title { get; set; }
+        public required string Message { get; set; }
         public bool IsRead { get; set; }
         public DateTime CreationTime { get; set; }
     }

@@ -2,12 +2,9 @@
 using System;
 using System.Linq.Expressions;
 using TravelBuddy.Destinos;
-using TravelBuddy.Users;         
 using TravelBuddy.Administration;
-using TravelBuddy.Ratings;        // <-- NUEVO
-using TravelBuddy.Users;          // <-- NUEVO
-using TravelBuddy.Notifications;
 using TravelBuddy.Ratings;
+using TravelBuddy.Notifications;
 using TravelBuddy.ExperienciasViaje;
 using TravelBuddy.Favorites;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;

@@ -136,41 +136,42 @@ namespace TravelBuddy.Application.Tests.Ratings
             var user2Id = Guid.Parse("3e701e62-0953-4dd3-910b-dc6cc93ccb0d");
 
             // Usuario 1 califica con 5
-            DestinationRatingDto rating1 = null;
             await WithUnitOfWorkAsync(async () =>
             {
-                // Usuario 1 califica con 5
                 using (_currentPrincipalAccessor.Change(CreateTestPrincipal(user1Id)))
                 {
-                    rating1 = await _ratingAppService.CreateAsync(new CreateDestinationRatingDto
+                    await _ratingAppService.CreateAsync(new CreateDestinationRatingDto
                     {
                         DestinationId = destinationId,
                         Score = 5,
                         Comment = "Excelente"
                     });
                 }
+            });
 
-                // Usuario 2 califica con 3
+            // Usuario 2 califica con 3
+            await WithUnitOfWorkAsync(async () =>
+            {
                 using (_currentPrincipalAccessor.Change(CreateTestPrincipal(user2Id)))
                 {
-                    rating2 = await _ratingAppService.CreateAsync(new CreateDestinationRatingDto
+                    await _ratingAppService.CreateAsync(new CreateDestinationRatingDto
                     {
                         DestinationId = destinationId,
                         Score = 3,
                         Comment = "Regular"
                     });
                 }
+            });
 
-                // Resetear el contexto de usuario antes de obtener el promedio
-                using (_currentPrincipalAccessor.Change(null))
-                {
-                    // Act
-                    var result = await _ratingAppService.GetAverageRatingAsync(destinationId);
+            // Act & Assert
+            await WithUnitOfWorkAsync(async () =>
+            {
+                // Act
+                var result = await _ratingAppService.GetAverageRatingAsync(destinationId);
 
-                    // Assert
-                    result.AverageScore.ShouldBe(4.0);
-                    result.TotalRatings.ShouldBe(2);
-                }
+                // Assert
+                result.AverageScore.ShouldBe(4.0);
+                result.TotalRatings.ShouldBe(2);
             });
         }
 

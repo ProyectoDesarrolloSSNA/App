@@ -10,10 +10,10 @@ namespace TravelBuddy.ExperienciasViaje.Dtos
 
         [Required]
         [StringLength(128)]
-        public string Titulo { get; set; }
+        public required string Titulo { get; set; }
 
         [StringLength(2000)]
-        public string Descripcion { get; set; }
+        public string? Descripcion { get; set; }
 
         [Range(1, 5)]
         public int Calificacion { get; set; }
