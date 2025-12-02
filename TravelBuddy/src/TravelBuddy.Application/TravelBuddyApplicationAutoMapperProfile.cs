@@ -1,9 +1,14 @@
 using AutoMapper;
-using TravelBuddy.Application.Contracts.Ratings;
 using TravelBuddy.Destinos;
 using TravelBuddy.Notifications;
 using TravelBuddy.Ratings;
 using static OpenIddict.Abstractions.OpenIddictConstants;
+using TravelBuddy.ExperienciasViaje;
+using TravelBuddy.ExperienciasViaje.Dtos;
+using TravelBuddy.Favorites;
+using TravelBuddy.Favorites.Dtos;
+using TravelBuddy.Users;
+using Volo.Abp.Identity;
 
 namespace TravelBuddy;
 
@@ -11,14 +16,19 @@ public class TravelBuddyApplicationAutoMapperProfile : Profile
 {
     public TravelBuddyApplicationAutoMapperProfile()
     {
-        /* You can configure your AutoMapper mapping configuration here.
-         * Alternatively, you can split your mapping configurations
-         * into multiple profile classes for a better organization. */
-
         CreateMap<Destino, DestinoDto>();
         CreateMap<CreateUpdateDestinoDto, Destino>();
         CreateMap<Rating, RatingDto>();
         CreateMap<CreateUpdateRatingDto, Rating>();
         CreateMap<AppNotification, AppNotificationDto>();
+        CreateMap<CrearActualizarExperienciaViajeDto, ExperienciaViaje>();
+        CreateMap<ExperienciaViaje, ExperienciaViajeDto>()
+            .ForMember(dest => dest.DestinoNombre, opt => opt.MapFrom(src => src.Destino.Nombre));
+        
+        // Mapeo para perfil público
+        CreateMap<IdentityUser, PublicProfileDto>();
+        
+        // Mapeo para favoritos (básico, el mapeo completo se hace en el servicio)
+        CreateMap<DestinationFavorite, DestinationFavoriteDto>();
     }
 }
