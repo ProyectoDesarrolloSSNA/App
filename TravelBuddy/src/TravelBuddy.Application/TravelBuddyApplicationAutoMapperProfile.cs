@@ -1,5 +1,8 @@
 using AutoMapper;
 using TravelBuddy.Destinos;
+using TravelBuddy.Ratings;
+using static OpenIddict.Abstractions.OpenIddictConstants;
+using TravelBuddy.Administration;
 using TravelBuddy.Notifications;
 using TravelBuddy.Ratings;
 using static OpenIddict.Abstractions.OpenIddictConstants;
@@ -20,6 +23,7 @@ public class TravelBuddyApplicationAutoMapperProfile : Profile
         CreateMap<CreateUpdateDestinoDto, Destino>();
         CreateMap<Rating, RatingDto>();
         CreateMap<CreateUpdateRatingDto, Rating>();
+        CreateMap<ApiUsageLog, ApiUsageLogDto>();
         CreateMap<AppNotification, AppNotificationDto>();
         CreateMap<CrearActualizarExperienciaViajeDto, ExperienciaViaje>();
         CreateMap<ExperienciaViaje, ExperienciaViajeDto>()
