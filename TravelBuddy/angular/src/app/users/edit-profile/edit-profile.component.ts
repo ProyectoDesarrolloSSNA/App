@@ -40,9 +40,12 @@ export class EditProfileComponent implements OnInit {
   }
 
   loadProfile(): void {
-    // Primero, intentar cargar del localStorage
-    const savedProfile = localStorage.getItem('userProfile');
+    // Obtener usuario actual
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    
+    // Cargar el perfil específico de este usuario usando su userName como clave
+    const userProfileKey = `userProfile_${currentUser.userName}`;
+    const savedProfile = localStorage.getItem(userProfileKey);
 
     if (savedProfile) {
       const storedProfile = JSON.parse(savedProfile);
@@ -70,21 +73,21 @@ export class EditProfileComponent implements OnInit {
           phoneNumber: profile.phoneNumber,
           bio: profile.bio,
         });
-        localStorage.setItem('userProfile', JSON.stringify(profile));
+        localStorage.setItem(userProfileKey, JSON.stringify(profile));
         this.isLoading = false;
       },
       error: () => {
-        // Usar datos mock mientras el backend no esté disponible
+        // Crear perfil vacío para el usuario actual
         this.profile = {
-          id: '123e4567-e89b-12d3-a456-426614174000',
-          userName: currentUser.userName || 'juan.perez',
-          email: currentUser.email || 'juan.perez@example.com',
-          name: currentUser.name || 'Juan',
-          surname: currentUser.surname || 'Pérez',
-          phoneNumber: '+34 612 345 678',
+          id: currentUser.id || 'user-new',
+          userName: currentUser.userName || 'usuario',
+          email: currentUser.email || 'usuario@example.com',
+          name: currentUser.name || 'Usuario',
+          surname: currentUser.surname || 'Demo',
+          phoneNumber: '',
           profilePictureUrl: null,
-          bio: 'Viajero apasionado por conocer nuevas culturas y destinos increíbles.',
-          createdAt: new Date('2024-01-15'),
+          bio: '',
+          createdAt: new Date(),
         };
         this.editForm.patchValue({
           name: this.profile.name,
@@ -93,7 +96,7 @@ export class EditProfileComponent implements OnInit {
           phoneNumber: this.profile.phoneNumber,
           bio: this.profile.bio,
         });
-        localStorage.setItem('userProfile', JSON.stringify(this.profile));
+        localStorage.setItem(userProfileKey, JSON.stringify(this.profile));
         this.isLoading = false;
       },
     });
@@ -129,7 +132,8 @@ export class EditProfileComponent implements OnInit {
   }
 
   saveProfile(): void {
-    if (this.editForm.invalid || !this.profile) {
+    // No validar si el formulario es inválido, permitir guardar con datos parciales
+    if (!this.profile) {
       return;
     }
 
@@ -137,31 +141,52 @@ export class EditProfileComponent implements OnInit {
     this.error = null;
     this.successMessage = null;
 
+    // Obtener usuario actual
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const userProfileKey = `userProfile_${currentUser.userName}`;
+
+    // Obtener valores del formulario (con fallback a valores actuales)
+    const formValues = this.editForm.value;
+
     const updatedProfile: UserProfile = {
       ...this.profile,
-      name: this.editForm.get('name')?.value,
-      surname: this.editForm.get('surname')?.value,
-      email: this.editForm.get('email')?.value,
-      phoneNumber: this.editForm.get('phoneNumber')?.value,
-      bio: this.editForm.get('bio')?.value,
+      name: formValues.name?.trim() || this.profile.name,
+      surname: formValues.surname?.trim() || this.profile.surname,
+      email: formValues.email?.trim() || this.profile.email,
+      phoneNumber: formValues.phoneNumber?.trim() || this.profile.phoneNumber || '',
+      bio: formValues.bio?.trim() || this.profile.bio || '',
       // Incluir la foto si fue seleccionada
       profilePictureUrl: this.previewUrl || this.profile.profilePictureUrl,
     };
 
+    console.log('Guardando perfil:', updatedProfile);
+
     // Simular actualización mientras el backend no está disponible
     setTimeout(() => {
       // Guardar en localStorage
-      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      const currentUserData = JSON.parse(localStorage.getItem('currentUser') || '{}');
       const updatedUser = {
-        ...currentUser,
+        ...currentUserData,
         name: updatedProfile.name,
         surname: updatedProfile.surname,
         email: updatedProfile.email,
       };
       localStorage.setItem('currentUser', JSON.stringify(updatedUser));
 
-      // Guardar perfil con la foto en localStorage
-      localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
+      // Crear una copia del perfil para guardar (con foto si existe)
+      const profileToSave = { ...updatedProfile };
+      
+      console.log('Guardando en localStorage con clave:', userProfileKey);
+
+      // Guardar perfil completo en localStorage con clave específica del usuario
+      try {
+        localStorage.setItem(userProfileKey, JSON.stringify(profileToSave));
+      } catch (e) {
+        // Si hay error por tamaño, guardar sin la foto muy grande
+        console.warn('Foto muy grande, guardando sin foto');
+        profileToSave.profilePictureUrl = null;
+        localStorage.setItem(userProfileKey, JSON.stringify(profileToSave));
+      }
 
       this.profile = updatedProfile;
       this.isSaving = false;

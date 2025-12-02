@@ -137,28 +137,5 @@
         }
       }
     }
-
-    .demo-info {
-      background-color: #f0f4ff;
-      border: 1px solid #e0e8ff;
-      border-radius: 4px;
-      padding: 15px;
-      margin-top: 20px;
-      font-size: 12px;
-
-      p {
-        margin: 5px 0;
-        color: #667eea;
-
-        &:first-child {
-          font-weight: 500;
-          margin-top: 0;
-        }
-
-        &:last-child {
-          margin-bottom: 0;
-        }
-      }
-    }
   }
 }

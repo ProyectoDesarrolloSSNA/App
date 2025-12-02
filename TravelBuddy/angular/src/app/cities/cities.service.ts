@@ -15,14 +15,16 @@ export interface CityDto {
 export class CitiesService {
   constructor(private http: HttpClient) {}
 
-  // 👇 ESTE es el método correcto
-  buscarPorNombre(nombre: string): Observable<CityDto[]> {
+  buscarPorNombre(nombre: string, pais?: string): Observable<CityDto[]> {
+    const params: any = { nombre };
+    if (pais && pais.trim()) {
+      params.pais = pais;
+    }
+    
     return this.http.post<CityDto[]>(
       '/api/app/destino/buscar-por-nombre-externamente',
-      {}, // body vacío porque es POST
-      {
-        params: { nombre },
-      }
+      {},
+      { params }
     );
   }
 }

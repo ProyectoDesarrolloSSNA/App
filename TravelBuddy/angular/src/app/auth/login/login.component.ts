@@ -39,10 +39,16 @@ export class LoginComponent {
 
     this.authService.login(userName, password).subscribe({
       next: () => {
-        this.router.navigate(['/users/profile']);
+        this.router.navigate(['/cities']);
       },
       error: (err) => {
-        this.error = 'Error al iniciar sesión';
+        if (err.type === 'USER_NOT_FOUND') {
+          this.error = 'El usuario no existe. Por favor regístrate.';
+        } else if (err.type === 'INVALID_PASSWORD') {
+          this.error = 'Contraseña incorrecta. Intenta de nuevo.';
+        } else {
+          this.error = err.message || 'Error al iniciar sesión';
+        }
         this.isLoading = false;
       },
     });

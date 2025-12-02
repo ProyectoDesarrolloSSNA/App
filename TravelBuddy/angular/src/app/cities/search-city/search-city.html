@@ -4,6 +4,30 @@
       <i class="bi bi-map"></i>
       Destinos
     </h1>
+    
+    <!-- Menú de Perfil -->
+    <div class="profile-menu-wrapper">
+      <button class="profile-btn" (click)="toggleProfileMenu()">
+        <i class="bi bi-person-circle"></i>
+        <span *ngIf="(currentUser$ | async) as user">{{ user.name }}</span>
+      </button>
+      
+      <div class="profile-dropdown" *ngIf="showProfileMenu">
+        <button class="dropdown-item" (click)="goToProfile()">
+          <i class="bi bi-person"></i> Ver Perfil
+        </button>
+        <button class="dropdown-item" (click)="goToEditProfile()">
+          <i class="bi bi-pencil"></i> Configurar Perfil
+        </button>
+        <button class="dropdown-item" (click)="goToFavorites()">
+          <i class="bi bi-heart-fill"></i> Favoritos
+        </button>
+        <hr>
+        <button class="dropdown-item logout" (click)="logout()">
+          <i class="bi bi-door-left"></i> Cerrar Sesión
+        </button>
+      </div>
+    </div>
   </div>
 
   <div class="search-section">
@@ -26,10 +50,9 @@
           type="text" 
           id="searchCountry"
           [(ngModel)]="searchCountry" 
-          placeholder="Ar"
+          placeholder="Opcional"
           class="form-control"
           (keyup.enter)="buscar()"
-          (input)="applyFiltersAndPagination()"
         />
       </div>
       
@@ -76,20 +99,47 @@
         </div>
         
         <div class="destino-details">
+          <div class="rating-display" *ngIf="getCityRating(city).count > 0">
+            <div class="stars">
+              <i *ngFor="let star of getStarsArray(getCityRating(city).average)" 
+                 [ngClass]="star <= getCityRating(city).average ? 'bi bi-star-fill' : 'bi bi-star'"
+                 class="star-icon"></i>
+            </div>
+            <button class="btn-comments" (click)="openCommentsModal(city, $event)" title="Ver comentarios">
+              <i class="bi bi-chat-dots"></i>
+            </button>
+          </div>
           <div class="detail-item" *ngIf="city.latitude != null && city.longitude != null">
             <i class="bi bi-pin-map-fill"></i>
             <span class="value">{{ city.latitude | number:'1.4-4' }}, {{ city.longitude | number:'1.4-4' }}</span>
           </div>
         </div>
         
-        <button 
-          class="btn-map" 
-          (click)="verEnMapa(city)"
-          [disabled]="city.latitude == null || city.longitude == null"
-        >
-          <i class="bi bi-map"></i>
-          Ver en mapa
-        </button>
+        <div class="card-actions">
+          <button 
+            class="btn-map" 
+            (click)="verEnMapa(city)"
+            [disabled]="city.latitude == null || city.longitude == null"
+          >
+            <i class="bi bi-map"></i>
+            Ver en mapa
+          </button>
+          <button 
+            class="btn-rate"
+            (click)="openRatingModal(city, $event)"
+            title="Calificar"
+          >
+            <i class="bi bi-star"></i>
+          </button>
+          <button 
+            class="btn-save"
+            [class.saved]="isCitySaved(city.name + '_' + city.country)"
+            (click)="toggleSaveCity(city, $event)"
+            [title]="isCitySaved(city.name + '_' + city.country) ? 'Guardado' : 'Guardar'"
+          >
+            <i [ngClass]="isCitySaved(city.name + '_' + city.country) ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -151,5 +201,127 @@
     >
       »
     </button>
+  </div>
+</div>
+
+<!-- Modal de calificación -->
+<div class="modal-overlay" *ngIf="showRatingModal" (click)="closeRatingModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Calificar Destino</h2>
+      <button class="close-btn" (click)="closeRatingModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body" *ngIf="selectedCity">
+      <div class="city-name">
+        <div class="city-title">
+          <h3>{{ selectedCity.name }}</h3>
+          <div class="average-rating" *ngIf="getCityRating(selectedCity).count > 0">
+            <div class="stars">
+              <i *ngFor="let star of getStarsArray(getCityRating(selectedCity).average)" 
+                 [ngClass]="star <= getCityRating(selectedCity).average ? 'bi bi-star-fill' : 'bi bi-star'"
+                 class="star-icon"></i>
+            </div>
+            <span class="rating-text">{{ getCityRating(selectedCity).average | number:'1.1-1' }}</span>
+          </div>
+        </div>
+        <span>{{ selectedCity.country }}</span>
+      </div>
+
+      <div class="rating-section">
+        <label>Calificación</label>
+        <div class="stars-selector">
+          <button 
+            *ngFor="let star of [1, 2, 3, 4, 5]"
+            type="button"
+            class="star-btn"
+            (click)="setRating(star)"
+          >
+            <i [ngClass]="star <= ratingStars ? 'bi bi-star-fill' : 'bi bi-star'"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="comment-section">
+        <label for="ratingComment">Comentario</label>
+        <textarea 
+          id="ratingComment"
+          [(ngModel)]="ratingComment"
+          placeholder="Comparte tu experiencia... (obligatorio)"
+          rows="4"
+          maxlength="500"
+          required
+        ></textarea>
+        <small>{{ ratingComment.length }}/500 caracteres</small>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeRatingModal()">
+          Cancelar
+        </button>
+        <button class="btn btn-primary" (click)="submitRating()">
+          Guardar Calificación
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de comentarios -->
+<div class="modal-overlay" *ngIf="showCommentsModal" (click)="closeCommentsModal()">
+  <div class="modal-content comments-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Comentarios</h2>
+      <button class="close-btn" (click)="closeCommentsModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body" *ngIf="selectedCity">
+      <div class="city-name">
+        <h3>{{ selectedCity.name }}</h3>
+        <span>{{ selectedCity.country }}</span>
+      </div>
+
+      <div class="comments-count" *ngIf="cityComments.length > 0">
+        <i class="bi bi-chat-dots"></i>
+        <span>{{ cityComments.length }} {{ cityComments.length === 1 ? 'comentario' : 'comentarios' }}</span>
+      </div>
+
+      <div class="comments-list" *ngIf="cityComments.length > 0">
+        <div class="comment-item" *ngFor="let comment of cityComments">
+          <div class="comment-header">
+            <div class="user-info">
+              <i class="bi bi-person-circle"></i>
+              <span class="username">{{ comment.userName }}</span>
+            </div>
+            <div class="header-actions">
+              <div class="rating-stars">
+                <i *ngFor="let star of getStarsArray(comment.stars)" 
+                   [ngClass]="star <= comment.stars ? 'bi bi-star-fill' : 'bi bi-star'"
+                   class="star-icon"></i>
+              </div>
+              <button 
+                *ngIf="isOwnComment(comment)"
+                class="btn-delete-comment"
+                (click)="deleteComment(comment, $event)"
+                title="Eliminar mi comentario"
+              >
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+          <p class="comment-text">{{ comment.comment }}</p>
+          <span class="comment-date">{{ comment.date | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+      </div>
+
+      <div class="no-comments" *ngIf="cityComments.length === 0">
+        <i class="bi bi-chat"></i>
+        <p>No hay comentarios aún</p>
+      </div>
+    </div>
   </div>
 </div>

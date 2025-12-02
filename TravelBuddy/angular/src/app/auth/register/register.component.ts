@@ -56,11 +56,17 @@ export class RegisterComponent {
       next: () => {
         this.successMessage = 'Cuenta creada exitosamente. Redirigiendo...';
         setTimeout(() => {
-          this.router.navigate(['/users/profile']);
+          this.router.navigate(['/cities']);
         }, 1500);
       },
-      error: () => {
-        this.error = 'Error al registrarse. Intenta de nuevo.';
+      error: (err) => {
+        if (err.type === 'USER_ALREADY_EXISTS') {
+          this.error = 'El usuario ya existe. Usa otro nombre de usuario.';
+        } else if (err.type === 'EMAIL_ALREADY_EXISTS') {
+          this.error = 'El email ya está registrado. Usa otro email.';
+        } else {
+          this.error = err.message || 'Error al registrarse. Intenta de nuevo.';
+        }
         this.isLoading = false;
       },
     });

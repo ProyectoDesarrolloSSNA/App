@@ -26,8 +26,19 @@ export const APP_ROUTES: Routes = [
   },
   {
     path: 'cities',
-    loadComponent: () =>
-      import('./cities/search-city/search-city').then(m => m.SearchCityComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./cities/search-city/search-city').then(m => m.SearchCityComponent),
+      },
+      {
+        path: 'favorites',
+        loadComponent: () =>
+          import('./cities/saved-cities/saved-cities.component').then(c => c.SavedCitiesComponent),
+        canActivate: [localAuthGuard],
+      },
+    ],
   },
   {
     path: 'auth',
