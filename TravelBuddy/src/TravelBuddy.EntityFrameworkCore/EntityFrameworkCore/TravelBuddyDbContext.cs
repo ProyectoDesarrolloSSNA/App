@@ -2,6 +2,9 @@
 using System;
 using System.Linq.Expressions;
 using TravelBuddy.Destinos;
+using TravelBuddy.Ratings;        // <-- NUEVO
+using TravelBuddy.Users;          // <-- NUEVO
+using TravelBuddy.Notifications;
 using TravelBuddy.Ratings;
 using TravelBuddy.ExperienciasViaje;
 using TravelBuddy.Favorites;
@@ -48,7 +51,7 @@ public class TravelBuddyDbContext :
     public DbSet<IdentitySession> Sessions { get; set; }
 
     #endregion
-
+    public DbSet<AppNotification> AppNotifications { get; set; }
 
     // NUEVO: inyección de ICurrentUser (null en design-time)
     private readonly ICurrentUser? _currentUser;
@@ -93,6 +96,14 @@ public class TravelBuddyDbContext :
             b.HasIndex(x => new { x.DestinationId, x.UserId }).IsUnique(false);
         });
 
+        builder.Entity<AppNotification>(b =>
+        {
+            b.ToTable("AppNotifications");
+            b.ConfigureByConvention();
+            b.HasIndex(x => x.UserId); // Importante para filtrar por usuario
+        });
+
+        // NUEVO: aplica filtro global a todas las entidades IUserOwned
         // Mapeo DestinationFavorite
         builder.Entity<DestinationFavorite>(b =>
         {
