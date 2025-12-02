@@ -5,27 +5,62 @@
       Destinos
     </h1>
     
-    <!-- Menú de Perfil -->
-    <div class="profile-menu-wrapper">
-      <button class="profile-btn" (click)="toggleProfileMenu()">
-        <i class="bi bi-person-circle"></i>
-        <span *ngIf="(currentUser$ | async) as user">{{ user.name }}</span>
-      </button>
+    <div class="header-actions">
+      <!-- Buscador de Usuarios -->
+      <div class="user-search-wrapper">
+        <div class="search-input-container">
+          <i class="bi bi-search"></i>
+          <input 
+            type="text" 
+            class="user-search-input"
+            [(ngModel)]="userSearchQuery"
+            (input)="onUserSearchInput()"
+            (focus)="showUserResults = true"
+            placeholder="Buscar usuarios..."
+          />
+        </div>
+        
+        <div class="user-search-results" *ngIf="showUserResults && filteredUsers.length > 0">
+          <div 
+            class="user-result-item" 
+            *ngFor="let user of filteredUsers"
+            (click)="goToUserProfile(user.userName)"
+          >
+            <i class="bi bi-person-circle"></i>
+            <div class="user-result-info">
+              <div class="user-result-name">{{ user.name }} {{ user.surname }}</div>
+              <div class="user-result-username">{{ '@' + user.userName }}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="user-search-results" *ngIf="showUserResults && userSearchQuery && filteredUsers.length === 0">
+          <div class="no-results">No se encontraron usuarios</div>
+        </div>
+      </div>
       
-      <div class="profile-dropdown" *ngIf="showProfileMenu">
-        <button class="dropdown-item" (click)="goToProfile()">
-          <i class="bi bi-person"></i> Ver Perfil
+      <!-- Menú de Perfil -->
+      <div class="profile-menu-wrapper">
+        <button class="profile-btn" (click)="toggleProfileMenu()">
+          <i class="bi bi-person-circle"></i>
+          <span *ngIf="(currentUser$ | async) as user">{{ user.name }}</span>
         </button>
-        <button class="dropdown-item" (click)="goToEditProfile()">
-          <i class="bi bi-pencil"></i> Configurar Perfil
-        </button>
-        <button class="dropdown-item" (click)="goToFavorites()">
-          <i class="bi bi-heart-fill"></i> Favoritos
-        </button>
-        <hr>
-        <button class="dropdown-item logout" (click)="logout()">
-          <i class="bi bi-door-left"></i> Cerrar Sesión
-        </button>
+      
+        <div class="profile-dropdown" *ngIf="showProfileMenu">
+          <button class="dropdown-item" (click)="goToProfile()">
+            <i class="bi bi-person"></i> Ver Perfil
+          </button>
+          <button class="dropdown-item" (click)="goToEditProfile()">
+            <i class="bi bi-pencil"></i> Configurar Perfil
+          </button>
+          <button class="dropdown-item" (click)="goToFavorites()">
+            <i class="bi bi-heart-fill"></i> Favoritos
+          </button>
+          <hr>
+          <button class="dropdown-item logout" (click)="logout()">
+            <i class="bi bi-door-left"></i> Cerrar Sesión
+          </button>
+        </div>
       </div>
     </div>
   </div>

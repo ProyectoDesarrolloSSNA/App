@@ -8,10 +8,11 @@
 
 .header {
   margin-bottom: 2rem;
-  margin-top: -2.5rem;
+  margin-top: 0;
+  padding-top: 1rem;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 1rem;
 
   h1 {
@@ -26,6 +27,116 @@
     i {
       color: #2196F3;
       font-size: 1.75rem;
+    }
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-search-wrapper {
+  position: relative;
+
+  .search-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    i {
+      position: absolute;
+      left: 0.75rem;
+      color: #666;
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    .user-search-input {
+      padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      width: 250px;
+      transition: all 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: #2196F3;
+        box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        width: 300px;
+      }
+
+      &::placeholder {
+        color: #999;
+      }
+    }
+  }
+
+  .user-search-results {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    min-width: 300px;
+
+    .user-result-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      border-bottom: 1px solid #f0f0f0;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background-color: #f5f5f5;
+      }
+
+      i {
+        font-size: 2rem;
+        color: #666;
+        flex-shrink: 0;
+      }
+
+      .user-result-info {
+        flex: 1;
+        min-width: 0;
+
+        .user-result-name {
+          font-weight: 500;
+          color: #333;
+          font-size: 0.95rem;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .user-result-username {
+          color: #666;
+          font-size: 0.85rem;
+          margin-top: 0.15rem;
+        }
+      }
+    }
+
+    .no-results {
+      padding: 1rem;
+      text-align: center;
+      color: #999;
+      font-size: 0.9rem;
     }
   }
 }

@@ -6,7 +6,7 @@ export const APP_ROUTES: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    loadComponent: () => import('./home/home.component').then(c => c.HomeComponent),
+    redirectTo: 'auth/login',
   },
   {
     path: 'account',
@@ -77,7 +77,7 @@ export const APP_ROUTES: Routes = [
         canActivate: [localAuthGuard],
       },
       {
-        path: 'public/:id',
+        path: 'public-profile/:userName',
         loadComponent: () =>
           import('./users/public-profile/public-profile.component').then(c => c.PublicProfileComponent),
       },

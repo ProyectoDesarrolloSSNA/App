@@ -32,6 +32,11 @@ export class SearchCityComponent implements OnInit, OnDestroy {
   currentUser$ = this.authService.currentUser$;
   showProfileMenu = false;
 
+  // Búsqueda de usuarios
+  userSearchQuery = '';
+  filteredUsers: any[] = [];
+  showUserResults = false;
+
   // Modal de calificación
   showRatingModal = false;
   selectedCity: CityDto | null = null;
@@ -65,6 +70,7 @@ export class SearchCityComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadSavedCities();
+    this.setupClickOutsideListener();
     this.term$
       .pipe(
         debounceTime(400),
@@ -197,10 +203,16 @@ export class SearchCityComponent implements OnInit, OnDestroy {
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     const profileMenu = document.querySelector('.profile-menu-wrapper');
+    const userSearch = target.closest('.user-search-wrapper');
     
     // Si el clic está fuera del menú de perfil, cerrar el dropdown
     if (profileMenu && !profileMenu.contains(target)) {
       this.showProfileMenu = false;
+    }
+
+    // Si el clic está fuera del buscador de usuarios, cerrar resultados
+    if (!userSearch) {
+      this.showUserResults = false;
     }
   }
 
@@ -370,5 +382,38 @@ export class SearchCityComponent implements OnInit, OnDestroy {
   isOwnComment(comment: any): boolean {
     const currentUser = this.authService.getCurrentUser();
     return currentUser ? comment.userName === currentUser.userName : false;
+  }
+
+  setupClickOutsideListener(): void {
+    // Ya se maneja con el HostListener
+  }
+
+  onUserSearchInput(): void {
+    const query = this.userSearchQuery.trim().toLowerCase();
+    
+    if (!query) {
+      this.filteredUsers = [];
+      this.showUserResults = false;
+      return;
+    }
+
+    // Obtener usuarios registrados del localStorage
+    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+    
+    // Filtrar usuarios que coincidan con la búsqueda
+    this.filteredUsers = registeredUsers.filter((user: any) => {
+      const fullName = `${user.name || ''} ${user.surname || ''}`.toLowerCase();
+      const userName = (user.userName || '').toLowerCase();
+      
+      return fullName.includes(query) || userName.includes(query);
+    }).slice(0, 5); // Limitar a 5 resultados
+    
+    this.showUserResults = true;
+  }
+
+  goToUserProfile(userName: string): void {
+    this.showUserResults = false;
+    this.userSearchQuery = '';
+    this.router.navigate(['/users/public-profile', userName]);
   }
 }
