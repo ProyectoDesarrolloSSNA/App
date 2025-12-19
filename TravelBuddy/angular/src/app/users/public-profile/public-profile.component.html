@@ -1,0 +1,28 @@
+<div class="public-profile-container">
+  <button (click)="goBack()" class="btn-back">← Atrás</button>
+
+  <div *ngIf="isLoading" class="loading">Cargando perfil...</div>
+  
+  <div *ngIf="error && !isLoading" class="error-container">
+    <div class="error-message">
+      <h2>❌ Usuario no encontrado</h2>
+      <p>{{ error }}</p>
+      <button (click)="goBack()" class="btn-error">Volver atrás</button>
+    </div>
+  </div>
+
+  <div *ngIf="profile && !isLoading && !error" class="profile-content">
+    <div class="profile-header">
+      <img *ngIf="profile.profilePictureUrl" [src]="profile.profilePictureUrl" alt="Foto de perfil" class="profile-picture">
+      <div *ngIf="!profile.profilePictureUrl" class="profile-picture-placeholder">
+        <span>{{ (profile.name?.charAt(0) || '') + (profile.surname?.charAt(0) || '') }}</span>
+      </div>
+      <div class="profile-info">
+        <h1>{{ profile.name }} {{ profile.surname }}</h1>
+        <p class="username"><span>{{ '@' }}</span>{{ profile.userName }}</p>
+        <p *ngIf="profile.bio" class="bio">{{ profile.bio }}</p>
+        <p class="joined">Miembro desde {{ profile.createdAt | date: 'MMMM yyyy' }}</p>
+      </div>
+    </div>
+  </div>
+</div>

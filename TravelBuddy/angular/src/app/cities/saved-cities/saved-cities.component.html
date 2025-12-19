@@ -1,0 +1,47 @@
+<div class="saved-cities-container">
+  <div class="header">
+    <button class="back-btn" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i> Volver
+    </button>
+    <h1>
+      <i class="bi bi-heart-fill"></i>
+      Favoritos
+    </h1>
+  </div>
+
+  <!-- Lista de ciudades guardadas -->
+  <div class="favorites-list" *ngIf="savedCityNames.length > 0">
+    <div class="favorite-item" *ngFor="let cityId of savedCityNames">
+      <div class="city-info">
+        <i class="bi bi-geo-alt-fill"></i>
+        <div class="city-details">
+          <div class="city-title-row">
+            <h3>{{ getCityName(cityId) }}</h3>
+            <div class="rating-stars" *ngIf="getCityRating(cityId).count > 0">
+              <i *ngFor="let star of getStarsArray(getCityRating(cityId).average)" 
+                 [ngClass]="star <= getCityRating(cityId).average ? 'bi bi-star-fill' : 'bi bi-star'"
+                 class="star-icon"></i>
+            </div>
+          </div>
+          <span class="country">{{ getCityCountry(cityId) }}</span>
+        </div>
+      </div>
+      <button 
+        class="btn-remove"
+        (click)="removeSavedCity(cityId)"
+        title="Eliminar de favoritos"
+      >
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Sin destinos guardados -->
+  <div class="no-results" *ngIf="savedCityNames.length === 0">
+    <i class="bi bi-heart"></i>
+    <p>No tienes destinos guardados aún</p>
+    <button class="btn btn-primary" (click)="goBack()">
+      Buscar destinos
+    </button>
+  </div>
+</div>
