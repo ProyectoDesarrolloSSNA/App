@@ -21,6 +21,7 @@ public class Program
         {
             Log.Information("Starting TravelBuddy.HttpApi.Host.");
             var builder = WebApplication.CreateBuilder(args);
+            
             builder.Host
                 .AddAppSettingsSecretsJson()
                 .UseAutofac()
@@ -39,9 +40,19 @@ public class Program
                         .WriteTo.Async(c => c.Console())
                         .WriteTo.Async(c => c.AbpStudio(services));
                 });
+
+            // 🔒 AGREGAR AUTENTICACIÓN Y AUTORIZACIÓN EXPLÍCITAMENTE
+            builder.Services.AddAuthentication();
+            builder.Services.AddAuthorization();
+            
             await builder.AddApplicationAsync<TravelBuddyHttpApiHostModule>();
             var app = builder.Build();
             await app.InitializeApplicationAsync();
+            
+            // 🔒 USAR AUTENTICACIÓN Y AUTORIZACIÓN EXPLÍCITAMENTE
+            app.UseAuthentication();
+            app.UseAuthorization();
+            
             await app.RunAsync();
             return 0;
         }
