@@ -92,7 +92,7 @@ namespace TravelBuddy.ExperienciasViaje
             if (!string.IsNullOrWhiteSpace(input.TextoFiltro))
             {
                 query = query.Where(x => x.Titulo.Contains(input.TextoFiltro) ||
-                                         x.Descripcion.Contains(input.TextoFiltro));
+                                         (x.Descripcion != null && x.Descripcion.Contains(input.TextoFiltro)));
             }
 
             if (!string.IsNullOrWhiteSpace(input.Sentimiento))

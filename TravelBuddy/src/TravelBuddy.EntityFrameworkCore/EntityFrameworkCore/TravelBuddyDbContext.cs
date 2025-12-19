@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq.Expressions;
-using TravelBuddy; 
 using TravelBuddy.Destinos;
+using TravelBuddy.Administration;
 using TravelBuddy.Ratings;
-using TravelBuddy.Users;
+using TravelBuddy.Notifications;
 using TravelBuddy.ExperienciasViaje;
+using TravelBuddy.Favorites;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
@@ -21,8 +22,7 @@ using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
-using Volo.Abp.Users;             // <-- NUEVO
-
+using Volo.Abp.Users;
 
 namespace TravelBuddy.EntityFrameworkCore;
 
@@ -34,7 +34,10 @@ public class TravelBuddyDbContext :
 {
     public DbSet<Destino> Destinos { get; set; } 
     public DbSet<DestinationRating> DestinationRatings { get; set; } = default!;
+    public DbSet<ApiUsageLog> ApiUsageLogs { get; set; }
     public DbSet<ExperienciaViaje> ExperienciasViaje { get; set; }
+    public DbSet<DestinationFavorite> DestinationFavorites { get; set; } = default!;
+    
     #region Entities from the modules
 
     // Identity
@@ -47,10 +50,8 @@ public class TravelBuddyDbContext :
     public DbSet<IdentityUserDelegation> UserDelegations { get; set; }
     public DbSet<IdentitySession> Sessions { get; set; }
 
-    public DbSet<Rating> Ratings { get; set; }
-
     #endregion
-
+    public DbSet<AppNotification> AppNotifications { get; set; }
 
     // NUEVO: inyección de ICurrentUser (null en design-time)
     private readonly ICurrentUser? _currentUser;
@@ -59,7 +60,6 @@ public class TravelBuddyDbContext :
         DbContextOptions<TravelBuddyDbContext> options,
         ICurrentUser? currentUser = null // permite migraciones sin usuario
     ) : base(options)
-
     {
         _currentUser = currentUser;
     }
@@ -96,6 +96,32 @@ public class TravelBuddyDbContext :
             b.HasIndex(x => new { x.DestinationId, x.UserId }).IsUnique(false);
         });
 
+        builder.Entity<ApiUsageLog>(b =>
+        {
+            b.ToTable("ApiUsageLogs");
+            b.ConfigureByConvention();
+            b.HasIndex(x => x.CreationTime); // Indice para búsquedas rápidas por fecha
+        });
+
+        builder.Entity<AppNotification>(b =>
+        {
+            b.ToTable("AppNotifications");
+            b.ConfigureByConvention();
+            b.HasIndex(x => x.UserId); // Importante para filtrar por usuario
+        });
+
+        // NUEVO: aplica filtro global a todas las entidades IUserOwned
+        // Mapeo DestinationFavorite
+        builder.Entity<DestinationFavorite>(b =>
+        {
+            b.ToTable("DestinationFavorites");
+            b.HasKey(x => x.Id);
+            b.Property(x => x.DestinationId).IsRequired();
+            b.Property(x => x.UserId).IsRequired();
+            b.HasIndex(x => new { x.UserId, x.DestinationId }).IsUnique();
+            b.HasIndex(x => x.DestinationId);
+        });
+        
         // Mapeo ExperienciaViaje
         builder.Entity<ExperienciaViaje>(b =>
         {
@@ -111,13 +137,14 @@ public class TravelBuddyDbContext :
             b.HasIndex(x => x.DestinoId);
         });
 
+        // COMENTADO: No aplicamos filtro global para IUserOwned
+        // La seguridad se maneja a nivel de aplicación service
+        /*
         //Aplica filtro global a todas las entidades IUserOwned
-
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
             if (typeof(IUserOwned).IsAssignableFrom(entityType.ClrType))
             {
-
                 var method = typeof(TravelBuddyDbContext)
                     .GetMethod(nameof(ApplyUserOwnedFilter),
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
@@ -126,9 +153,11 @@ public class TravelBuddyDbContext :
                 method.Invoke(this, new object[] { builder });
             }
         }
+        */
     }
 
-    // NUEVO: HasQueryFilter(UserId == usuario actual). Si no hay usuario => 0 filas.
+    // COMENTADO: Método no utilizado ya que no aplicamos filtro global
+    /*
     private void ApplyUserOwnedFilter<TEntity>(ModelBuilder builder) where TEntity : class, IUserOwned
     {
         builder.Entity<TEntity>().HasQueryFilter(e =>
@@ -136,6 +165,6 @@ public class TravelBuddyDbContext :
                 ? e.UserId == _currentUser.GetId()
                 : false
         );
-
     }
+    */
 }
