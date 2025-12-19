@@ -40,13 +40,12 @@ namespace TravelBuddy.Application.Ratings
             if (!_currentUser.IsAuthenticated)
                 throw new AbpAuthorizationException();
 
-            // Verificar si el usuario ya qualificó este destino
-            // Necesitamos verificar SOLO las calificaciones del usuario actual, el filtro ya lo hace automáticamente
-            var existingRating = await _repo.FirstOrDefaultAsync(x =>
+            // Verificar si el usuario ya calificó este destino
+            var existingRatings = await _repo.GetListAsync(x =>
                 x.DestinationId == input.DestinationId &&
                 x.UserId == _currentUser.GetId());
 
-            if (existingRating != null)
+            if (existingRatings.Any())
             {
                 throw new UserFriendlyException("Ya has calificado este destino. Usa la opción de editar.");
             }
@@ -151,10 +150,7 @@ namespace TravelBuddy.Application.Ratings
             if (!_currentUser.IsAuthenticated)
                 throw new AbpAuthorizationException();
 
-            var queryable = await _repo.GetQueryableAsync();
-            var ratings = await AsyncExecuter.ToListAsync(
-                queryable.Where(x => x.DestinationId == destinationId && x.UserId == _currentUser.GetId())
-            );
+            var ratings = await _repo.GetListAsync(x => x.DestinationId == destinationId && x.UserId == _currentUser.GetId());
 
             var result = new List<DestinationRatingDto>();
             
@@ -175,10 +171,12 @@ namespace TravelBuddy.Application.Ratings
             if (!_currentUser.IsAuthenticated)
                 throw new AbpAuthorizationException();
 
-            var rating = await _repo.FirstOrDefaultAsync(x => 
+            var ratings = await _repo.GetListAsync(x => 
                 x.DestinationId == destinationId && 
                 x.UserId == _currentUser.GetId());
 
+            var rating = ratings.FirstOrDefault();
+            
             return rating != null ? await MapToDto(rating) : null;
         }
 

@@ -11,21 +11,21 @@ namespace TravelBuddy.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Destinos",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Nombre = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Pais = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    ExtraProperties = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Destinos", x => x.Id);
-                });
+            // Verificar si la tabla ya existe antes de crearla
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Destinos]') AND type in (N'U'))
+                BEGIN
+                    CREATE TABLE [Destinos] (
+                        [Id] uniqueidentifier NOT NULL,
+                        [Nombre] nvarchar(200) NOT NULL,
+                        [Pais] nvarchar(100) NOT NULL,
+                        [Descripcion] nvarchar(500) NOT NULL,
+                        [ExtraProperties] nvarchar(max) NOT NULL,
+                        [ConcurrencyStamp] nvarchar(40) NOT NULL,
+                        CONSTRAINT [PK_Destinos] PRIMARY KEY ([Id])
+                    )
+                END
+            ");
         }
 
         /// <inheritdoc />

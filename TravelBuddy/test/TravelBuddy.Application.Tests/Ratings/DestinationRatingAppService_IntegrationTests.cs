@@ -153,40 +153,6 @@ namespace TravelBuddy.Tests.Ratings
             results.ShouldBeEmpty();
         }
 
-        [Fact]
-        public async Task GetMyRatingsAsync_DeberiaDevolverMultiples_CalificacionesDelMismoUsuario()
-        {
-            // Arrange
-            var destinationId = Guid.NewGuid();
-            var currentUserId = GetRequiredService<ICurrentUser>().GetId();
-
-            var rating1 = new DestinationRating(
-                id: Guid.NewGuid(),
-                destinationId: destinationId,
-                score: 4,
-                comment: "Primera calificación",
-                userId: currentUserId
-            );
-
-            var rating2 = new DestinationRating(
-                id: Guid.NewGuid(),
-                destinationId: destinationId,
-                score: 5,
-                comment: "Segunda calificación",
-                userId: currentUserId
-            );
-
-            await _dbContext.DestinationRatings.AddRangeAsync(rating1, rating2);
-            await _dbContext.SaveChangesAsync();
-
-            // Act
-            var results = await _appService.GetMyRatingsAsync(destinationId);
-
-            // Assert
-            results.Count.ShouldBe(2);
-            results.All(r => r.UserId == currentUserId).ShouldBeTrue();
-        }
-
         #endregion
 
         #region Pruebas de Validación
@@ -215,33 +181,72 @@ namespace TravelBuddy.Tests.Ratings
         #region Prevención de Duplicados (Regla de Negocio)
 
         [Fact]
-        public async Task Usuario_DeberiaPoderCrear_MultiplesCalificacionesParaMismoDestino()
+        public async Task Usuario_NoPuedeCrear_MultiplesCalificacionesParaMismoDestino()
         {
-            // Arrange: Escenario actual permite múltiples calificaciones
+            // Arrange: La regla de negocio NO permite múltiples calificaciones del mismo usuario para el mismo destino
             var destinationId = Guid.NewGuid();
             var input1 = new CreateDestinationRatingDto
             {
                 DestinationId = destinationId,
                 Score = 4,
-                Comment = "Primera vez"
+                Comment = "Primera calificación"
             };
 
+            // Act: Crear la primera calificación (debe funcionar)
+            var result1 = await _appService.CreateAsync(input1);
+            result1.ShouldNotBeNull();
+
+            // Intentar crear una segunda calificación para el mismo destino (debe fallar)
             var input2 = new CreateDestinationRatingDto
             {
                 DestinationId = destinationId,
                 Score = 5,
-                Comment = "Mejoró mucho"
+                Comment = "Intento de segunda calificación"
             };
 
-            // Act
-            var result1 = await _appService.CreateAsync(input1);
-            var result2 = await _appService.CreateAsync(input2);
+            // Assert: Debe lanzar excepción UserFriendlyException
+            var exception = await Should.ThrowAsync<Volo.Abp.UserFriendlyException>(
+                async () => await _appService.CreateAsync(input2));
+            
+            exception.Message.ShouldContain("Ya has calificado este destino");
+            
+            // Verificar que solo existe una calificación
+            var allRatings = await _appService.GetMyRatingsAsync(destinationId);
+            allRatings.Count.ShouldBe(1, "Solo debe existir una calificación del usuario para este destino");
+            allRatings.First().Comment.ShouldBe("Primera calificación");
+        }
+
+        [Fact]
+        public async Task Usuario_PuedeActualizar_CalificacionExistente()
+        {
+            // Arrange: Crear una calificación inicial
+            var destinationId = Guid.NewGuid();
+            var createInput = new CreateDestinationRatingDto
+            {
+                DestinationId = destinationId,
+                Score = 3,
+                Comment = "Calificación inicial"
+            };
+
+            var created = await _appService.CreateAsync(createInput);
+
+            // Act: Actualizar la calificación existente
+            var updateInput = new UpdateDestinationRatingDto
+            {
+                Score = 5,
+                Comment = "Calificación actualizada - mejoró mucho"
+            };
+
+            var updated = await _appService.UpdateAsync(created.Id, updateInput);
 
             // Assert
-            result1.Id.ShouldNotBe(result2.Id);
+            updated.Id.ShouldBe(created.Id);
+            updated.Score.ShouldBe(5);
+            updated.Comment.ShouldBe("Calificación actualizada - mejoró mucho");
             
+            // Verificar que sigue siendo solo una calificación
             var allRatings = await _appService.GetMyRatingsAsync(destinationId);
-            allRatings.Count.ShouldBe(2);
+            allRatings.Count.ShouldBe(1);
         }
 
         #endregion
