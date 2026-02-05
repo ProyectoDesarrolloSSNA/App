@@ -1,19 +1,18 @@
 ﻿using System;
 using Volo.Abp.Domain.Entities.Auditing;
-using TravelBuddy.Users;
 
 namespace TravelBuddy.Ratings
 {
-    public class DestinationRating : AuditedAggregateRoot<Guid>, IUserOwned   // <-- PUBLIC
+    public class DestinationRating : AuditedAggregateRoot<Guid>, IUserOwned
     {
         public Guid DestinationId { get; private set; }
         public int Score { get; private set; }
         public string? Comment { get; private set; }
         public Guid UserId { get; set; }
 
-        protected DestinationRating() { }          // OK para EF
+        protected DestinationRating() { }
 
-        public DestinationRating(                 // <-- CONSTRUCTOR PUBLIC
+        public DestinationRating(
             Guid id,
             Guid destinationId,
             int score,
